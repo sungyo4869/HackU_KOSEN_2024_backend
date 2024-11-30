@@ -35,7 +35,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		user, err := h.svc.ReadUser(r.Context(), name)
 		if err != nil {
 			http.Error(w, "Authentication failed", http.StatusUnauthorized)
-			log.Println("Login: Authentification filed, err = ", err)
+			log.Println("Login: Authentication filed, err = ", err)
 			return
 		}
 
