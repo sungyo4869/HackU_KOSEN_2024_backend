@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"database/sql"
-	"log"
 
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
 )
@@ -24,7 +23,6 @@ func (s *UserService) ReadUser(ctx context.Context, username string) (*model.Use
 
 	row := s.db.QueryRowContext(ctx, query, username)
 	if err := row.Scan(&user.UserId, &user.Name); err != nil {
-		log.Print("model: ", err)
 		return nil, err
 	}
 
