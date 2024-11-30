@@ -13,6 +13,15 @@ CREATE TABLE IF NOT EXISTS cards (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS hands (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    card_id INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (card_id) REFERENCES cards(id)
+);
+
 INSERT INTO
     users (username)
 VALUES
@@ -55,3 +64,24 @@ VALUES
 (3, 'card28.jpg', 'カード28'),
 (3, 'card29.jpg', 'カード29'),
 (3, 'card30.jpg', 'カード30');
+
+INSERT INTO
+    hands (user_id, card_id)
+VALUES
+(1,2),
+(1,3),
+(1,5),
+(1,7),
+(1,9),
+
+(2, 11),
+(2, 12),
+(2, 14),
+(2, 16),
+(2, 18),
+
+(3, 20),
+(3, 21),
+(3, 23),
+(3, 25),
+(3, 27);
