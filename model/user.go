@@ -6,10 +6,6 @@ type (
 		Name   string `json:"username"`
 	}
 
-	ReadUserRequest struct {
-		Name string
-	}
-
 	ReadUserResponse struct {
 		UserId int `json:"user-id"`
 	}

@@ -8,10 +8,6 @@ type(
 		Name string	
 	}
 
-	ReadCardRequest struct {
-		UserId int
-	}
-
 	ReadCardResponse struct {
 		Cards []Card
 	}
