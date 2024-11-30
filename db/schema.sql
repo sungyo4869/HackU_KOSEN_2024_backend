@@ -13,11 +13,19 @@ CREATE TABLE IF NOT EXISTS cards (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-INSERT INTO users (username) VALUES ('user1'), ('user2'), ('user3');
-INSERT INTO cards (user_id, picture, card_name) VALUES
-(1, 'card1.jpg', 'カード1'),
-(2, 'card2.jpg', 'カード2'),
-(3, 'card3.jpg', 'カード3'),
-(1, 'card4.jpg', 'カード4'),
-(2, 'card5.jpg', 'カード5'),
-(3, 'card6.jpg', 'カード6');
+INSERT INTO
+    users (username)
+VALUES
+    ('user1'),
+    ('user2'),
+    ('user3');
+
+INSERT INTO
+    cards (user_id, picture, card_name)
+VALUES
+    (1, 'card1.jpg', 'カード1'),
+    (2, 'card2.jpg', 'カード2'),
+    (3, 'card3.jpg', 'カード3'),
+    (1, 'card4.jpg', 'カード4'),
+    (2, 'card5.jpg', 'カード5'),
+    (3, 'card6.jpg', 'カード6');
