@@ -23,9 +23,35 @@ VALUES
 INSERT INTO
     cards (user_id, picture, card_name)
 VALUES
-    (1, 'card1.jpg', 'カード1'),
-    (2, 'card2.jpg', 'カード2'),
-    (3, 'card3.jpg', 'カード3'),
-    (1, 'card4.jpg', 'カード4'),
-    (2, 'card5.jpg', 'カード5'),
-    (3, 'card6.jpg', 'カード6');
+(1, 'card1.jpg', 'カード1'),
+(1, 'card2.jpg', 'カード2'),
+(1, 'card3.jpg', 'カード3'),
+(1, 'card4.jpg', 'カード4'),
+(1, 'card5.jpg', 'カード5'),
+(1, 'card6.jpg', 'カード6'),
+(1, 'card7.jpg', 'カード7'),
+(1, 'card8.jpg', 'カード8'),
+(1, 'card9.jpg', 'カード9'),
+(1, 'card10.jpg', 'カード10'),
+
+(2, 'card11.jpg', 'カード11'),
+(2, 'card12.jpg', 'カード12'),
+(2, 'card13.jpg', 'カード13'),
+(2, 'card14.jpg', 'カード14'),
+(2, 'card15.jpg', 'カード15'),
+(2, 'card16.jpg', 'カード16'),
+(2, 'card17.jpg', 'カード17'),
+(2, 'card18.jpg', 'カード18'),
+(2, 'card19.jpg', 'カード19'),
+(2, 'card20.jpg', 'カード20'),
+
+(3, 'card21.jpg', 'カード21'),
+(3, 'card22.jpg', 'カード22'),
+(3, 'card23.jpg', 'カード23'),
+(3, 'card24.jpg', 'カード24'),
+(3, 'card25.jpg', 'カード25'),
+(3, 'card26.jpg', 'カード26'),
+(3, 'card27.jpg', 'カード27'),
+(3, 'card28.jpg', 'カード28'),
+(3, 'card29.jpg', 'カード29'),
+(3, 'card30.jpg', 'カード30');
