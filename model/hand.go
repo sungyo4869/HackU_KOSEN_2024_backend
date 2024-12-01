@@ -1,12 +1,13 @@
 package model
 
-type(
+type (
 	Hand struct {
+		ID     int
 		UserID int
 		CardID int
 	}
 
-	ReadHandsResponse struct {
+	ReadHandResponse struct {
 		Hands []Hand
 	}
 )
