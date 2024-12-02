@@ -2,9 +2,9 @@ package model
 
 type (
 	UserSelected struct {
-		ID        int
-		UserID    int
-		CardID    int
+		Id        int
+		UserId    int
+		CardId    int
 		Attribute string
 	}
 
