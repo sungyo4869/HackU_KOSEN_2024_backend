@@ -14,6 +14,6 @@ func NewRouter(DB *sql.DB) *http.ServeMux {
 	mux.HandleFunc("/healthz", handler.NewHealthzHandler().ServeHTTP)
 	mux.HandleFunc("/login", handler.NewLoginHandler(service.NewUserService(DB)).ServeHTTP)
 	mux.HandleFunc("/cards", handler.NewCardHandler(*service.NewCardService(DB)).ServeHTTP)
-	mux.HandleFunc("/selectedCards", handler.NewHandHandler(*service.NewHandService(DB)).ServeHTTP)
+	mux.HandleFunc("/selected-cards", handler.NewHandHandler(*service.NewUserSelectedService(DB)).ServeHTTP)
 	return mux
 }

@@ -10,17 +10,17 @@ import (
 	"github.com/sugyo4869/HackU_KOSEN_2024/service"
 )
 
-type HandHandler struct {
-	svc *service.HandService
+type UserSelectedHandler struct {
+	svc *service.UserSelectedService
 }
 
-func NewHandHandler(svc service.HandService) *HandHandler {
-	return &HandHandler{
+func NewHandHandler(svc service.UserSelectedService) *UserSelectedHandler {
+	return &UserSelectedHandler{
 		svc: &svc,
 	}
 }
 
-func (h *HandHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *UserSelectedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		var res model.ReadHandsResponse
@@ -37,13 +37,13 @@ func (h *HandHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Println("Failed to get parameters")
 		}
 
-		hands, err := h.svc.ReadHand(r.Context(), intId)
+		selections, err := h.svc.ReadUserSelected(r.Context(), intId)
 		if err != nil {
-			http.Error(w, "hands is not found", http.StatusNotFound)
-			log.Println("hands is not found, err = ", err)
+			http.Error(w, "selections is not found", http.StatusNotFound)
+			log.Println("selections is not found, err = ", err)
 		}
 
-		res.SelectedCards = *hands
+		res.SelectedCards = *selections
 		err = json.NewEncoder(w).Encode(&res)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
