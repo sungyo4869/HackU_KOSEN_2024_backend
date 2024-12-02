@@ -7,17 +7,17 @@ import (
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
 )
 
-type HandService struct {
+type UserSelectedService struct {
 	db *sql.DB
 }
 
-func NewHandService(db *sql.DB) *HandService {
-	return &HandService{
+func NewUserSelectedService(db *sql.DB) *UserSelectedService {
+	return &UserSelectedService{
 		db: db,
 	}
 }
 
-func (s *HandService) ReadHand(ctx context.Context, userId int) (*[]model.UserSelected, error) {
+func (s *UserSelectedService) ReadUserSelected(ctx context.Context, userId int) (*[]model.UserSelected, error) {
 	query := `select * from user_selected where user_id = ?`
 
 	rows, err := s.db.QueryContext(ctx, query, userId)
