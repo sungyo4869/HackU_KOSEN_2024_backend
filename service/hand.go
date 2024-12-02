@@ -17,7 +17,7 @@ func NewHandService(db *sql.DB) *HandService {
 	}
 }
 
-func (s *HandService) ReadHand(ctx context.Context, userId int) (*[]model.Hand, error) {
+func (s *HandService) ReadHand(ctx context.Context, userId int) (*[]model.SelectedCard, error) {
 	query := `select * from hands where user_id = ?`
 
 	rows, err := s.db.QueryContext(ctx, query, userId)
@@ -26,9 +26,9 @@ func (s *HandService) ReadHand(ctx context.Context, userId int) (*[]model.Hand, 
 	}
 	defer rows.Close()
 
-	var hands []model.Hand
+	var hands []model.SelectedCard
 	for rows.Next() {
-		var hand model.Hand
+		var hand model.SelectedCard
 		if err := rows.Scan(&hand.ID, &hand.UserID, &hand.CardID); err != nil {
 			return nil, err
 		}

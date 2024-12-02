@@ -13,10 +13,11 @@ CREATE TABLE IF NOT EXISTS cards (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS hands (
+CREATE TABLE IF NOT EXISTS selected_cards (
     id INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     card_id INT NOT NULL,
+    attribute ENUM('red', 'blue', 'green', 'kamekame', 'nankuru') NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (card_id) REFERENCES cards(id)

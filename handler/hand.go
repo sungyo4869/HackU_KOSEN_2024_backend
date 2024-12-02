@@ -23,7 +23,7 @@ func NewHandHandler(svc service.HandService) *HandHandler {
 func (h *HandHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		var res model.ReadHandResponse
+		var res model.ReadHandsResponse
 		params := r.URL.Query()
 		id := params.Get("user-id")
 		if id == "" {
@@ -43,7 +43,7 @@ func (h *HandHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Println("hands is not found, err = ", err)
 		}
 
-		res.Hands = *hands
+		res.SelectedCards = *hands
 		err = json.NewEncoder(w).Encode(&res)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
