@@ -29,7 +29,7 @@ func (s *HandService) ReadHand(ctx context.Context, userId int) (*[]model.UserSe
 	var selections []model.UserSelected
 	for rows.Next() {
 		var selection model.UserSelected
-		if err := rows.Scan(&selection.ID, &selection.UserID, &selection.CardID); err != nil {
+		if err := rows.Scan(&selection.Id, &selection.UserId, &selection.CardId); err != nil {
 			return nil, err
 		}
 
