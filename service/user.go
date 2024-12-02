@@ -7,11 +7,11 @@ import (
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
 )
 
-type UserService struct{
+type UserService struct {
 	db *sql.DB
 }
 
-func NewUserService(db *sql.DB) *UserService{
+func NewUserService(db *sql.DB) *UserService {
 	return &UserService{
 		db: db,
 	}
@@ -22,10 +22,10 @@ func (s *UserService) ReadUser(ctx context.Context, username string) (*model.Use
 	var user model.User
 
 	row := s.db.QueryRowContext(ctx, query, username)
-	if err := row.Scan(&user.UserId, &user.Name); err != nil {
+	if err := row.Scan(&user.UserId, &user.Name, &user.Password); err != nil {
 		return nil, err
 	}
 
 	return &user, nil
-	
+
 }
