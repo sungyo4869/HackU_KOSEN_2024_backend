@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS cards (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS selected_cards (
+CREATE TABLE IF NOT EXISTS user_selected (
     id INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     card_id INT NOT NULL,
@@ -67,7 +67,7 @@ VALUES
 (3, 'card30.jpg', 'カード30');
 
 INSERT INTO
-    hands (user_id, card_id)
+    user_selected (user_id, card_id)
 VALUES
 (1,2),
 (1,3),

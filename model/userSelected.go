@@ -1,7 +1,7 @@
 package model
 
 type (
-	SelectedCard struct {
+	UserSelected struct {
 		ID        int
 		UserID    int
 		CardID    int
@@ -9,6 +9,6 @@ type (
 	}
 
 	ReadHandsResponse struct {
-		SelectedCards []SelectedCard `json:"selected-cards"`
+		SelectedCards []UserSelected `json:"selected-cards"`
 	}
 )
