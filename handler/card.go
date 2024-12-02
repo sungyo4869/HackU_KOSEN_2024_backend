@@ -14,16 +14,16 @@ type CardHandler struct {
 	svc *service.CardService
 }
 
-func NewCardHandler (svc service.CardService) *CardHandler{
+func NewCardHandler(svc service.CardService) *CardHandler {
 	return &CardHandler{
 		svc: &svc,
 	}
 }
 
 func (h *CardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method{
+	switch r.Method {
 	case http.MethodGet:
-		var res model.ReadCardResponse
+		var res model.ReadCardsResponse
 		params := r.URL.Query()
 		id := params.Get("user-id")
 		if id == "" {
@@ -50,6 +50,6 @@ func (h *CardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Println("Login: Filed to encoding json, err = ", err)
 			return
 		}
-		
+
 	}
 }

@@ -8,7 +8,7 @@ type(
 		Name string	
 	}
 
-	ReadCardResponse struct {
+	ReadCardsResponse struct {
 		Cards []Card
 	}
 )
