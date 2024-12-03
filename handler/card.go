@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
 	"github.com/sugyo4869/HackU_KOSEN_2024/service"
@@ -21,23 +20,18 @@ func NewCardHandler(svc service.CardService) *CardHandler {
 }
 
 func (h *CardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	type userIDKey struct{}
+
 	switch r.Method {
 	case http.MethodGet:
 		var res model.ReadCardsResponse
-		params := r.URL.Query()
-		id := params.Get("user-id")
-		if id == "" {
-			http.Error(w, "user-id is missing", http.StatusBadRequest)
-			log.Println("Failed to get parameters")
+		userID, ok := r.Context().Value(userIDKey{}).(int64)
+		if !ok {
+			http.Error(w, "ユーザーIDが見つかりません", http.StatusUnauthorized)
+			return
 		}
 
-		intId, err := strconv.Atoi(id)
-		if err != nil {
-			http.Error(w, "user-id is missing", http.StatusBadRequest)
-			log.Println("Failed to get parameters")
-		}
-
-		cards, err := h.svc.ReadCard(r.Context(), intId)
+		cards, err := h.svc.ReadCard(r.Context(), int(userID))
 		if err != nil {
 			http.Error(w, "cards is not found", http.StatusNotFound)
 			log.Println("cards is not found, err = ", err)
