@@ -7,18 +7,18 @@ import (
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
 )
 
-type HandService struct {
+type UserSelectedService struct {
 	db *sql.DB
 }
 
-func NewHandService(db *sql.DB) *HandService {
-	return &HandService{
+func NewUserSelectedService(db *sql.DB) *UserSelectedService {
+	return &UserSelectedService{
 		db: db,
 	}
 }
 
-func (s *HandService) ReadHand(ctx context.Context, userId int) (*[]model.UserSelected, error) {
-	query := `select * from hands where user_id = ?`
+func (s *UserSelectedService) ReadUserSelected(ctx context.Context, userId int) (*[]model.UserSelected, error) {
+	query := `select * from user_selected where user_id = ?`
 
 	rows, err := s.db.QueryContext(ctx, query, userId)
 	if err != nil {
@@ -29,7 +29,7 @@ func (s *HandService) ReadHand(ctx context.Context, userId int) (*[]model.UserSe
 	var selections []model.UserSelected
 	for rows.Next() {
 		var selection model.UserSelected
-		if err := rows.Scan(&selection.ID, &selection.UserID, &selection.CardID); err != nil {
+		if err := rows.Scan(&selection.Id, &selection.UserId, &selection.CardId, &selection.Attribute); err != nil {
 			return nil, err
 		}
 
