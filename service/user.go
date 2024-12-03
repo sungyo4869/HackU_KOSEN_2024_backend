@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -48,7 +49,7 @@ func (s *UserService) CreateToken(userId int) (string, error) {
 		"exp":     time.Now().Add(72 * time.Hour).Unix(),
 	}
 
-	var secretKey = "secret" // 任意の文字列
+	var secretKey = os.Getenv("SECRET_KEY")
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
 		return "", err
