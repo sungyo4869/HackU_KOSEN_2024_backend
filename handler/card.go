@@ -37,7 +37,7 @@ func (h *CardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Println("Failed to get parameters")
 		}
 
-		cards, err := h.svc.ReadCard(r.Context(), intId)
+		cards, err := h.svc.ReadCard(r.Context(), intId, []int{})
 		if err != nil {
 			http.Error(w, "cards is not found", http.StatusNotFound)
 			log.Println("cards is not found, err = ", err)
