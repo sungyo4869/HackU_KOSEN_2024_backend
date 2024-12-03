@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
 	"github.com/sugyo4869/HackU_KOSEN_2024/service"
@@ -21,23 +20,18 @@ func NewHandHandler(svc service.UserSelectedService) *UserSelectedHandler {
 }
 
 func (h *UserSelectedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	type userIDKey struct{}
 	switch r.Method {
 	case http.MethodGet:
 		var res model.ReadHandsResponse
-		params := r.URL.Query()
-		id := params.Get("user-id")
-		if id == "" {
-			http.Error(w, "user-id is missing", http.StatusBadRequest)
-			log.Println("Failed to get parameters")
+
+		userId, ok := r.Context().Value(userIDKey{}).(int64)
+		if !ok {
+			http.Error(w, "ユーザーIDが見つかりません", http.StatusUnauthorized)
+			return
 		}
 
-		intId, err := strconv.Atoi(id)
-		if err != nil {
-			http.Error(w, "user-id is missing", http.StatusBadRequest)
-			log.Println("Failed to get parameters")
-		}
-
-		selections, err := h.svc.ReadUserSelected(r.Context(), intId)
+		selections, err := h.svc.ReadUserSelected(r.Context(), int(userId))
 		if err != nil {
 			http.Error(w, "selections is not found", http.StatusNotFound)
 			log.Println("selections is not found, err = ", err)
