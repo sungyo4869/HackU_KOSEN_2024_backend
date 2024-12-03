@@ -1,11 +1,11 @@
 package model
 
 type MatchingWSResponse struct {
-	RoomId  int `json:"room-id"`
+	RoomId  int      `json:"room-id"`
 	Players []Player `json:"players"`
 }
 
 type Player struct {
-	User        User `json:"user"`
+	Username      string         `json:"username`
 	SelectedCards []SelectedCard `json:"selected-cards"`
 }
