@@ -6,6 +6,6 @@ type MatchingWSResponse struct {
 }
 
 type Player struct {
-	Username      string         `json:"username`
+	Username      string         `json:"username"`
 	SelectedCards []SelectedCard `json:"selected-cards"`
 }
