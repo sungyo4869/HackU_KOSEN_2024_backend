@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/sugyo4869/HackU_KOSEN_2024/handler/middleware"
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
 	"github.com/sugyo4869/HackU_KOSEN_2024/service"
 )
@@ -20,12 +21,11 @@ func NewHandHandler(svc service.UserSelectedService) *UserSelectedHandler {
 }
 
 func (h *UserSelectedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	type userIDKey struct{}
 	switch r.Method {
 	case http.MethodGet:
 		var res model.ReadHandsResponse
 
-		userId, ok := r.Context().Value(userIDKey{}).(int64)
+		userId, ok := r.Context().Value(middleware.UserIDKey{}).(int64)
 		if !ok {
 			http.Error(w, "ユーザーIDが見つかりません", http.StatusUnauthorized)
 			return
