@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS user_selected (
     FOREIGN KEY (card_id) REFERENCES cards(id)
 );
 
-CREATE TABLE IF NOT EXISTS user_selected (
+CREATE TABLE IF NOT EXISTS rooms (
     room_id INT NOT NULL AUTO_INCREMENT,
     user1_id INT NOT NULL,
     user2_id INT NOT NULL,
