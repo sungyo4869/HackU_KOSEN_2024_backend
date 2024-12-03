@@ -7,5 +7,5 @@ type MatchingWSResponse struct {
 
 type Player struct {
 	User        User `json:"user"`
-	SelectedCards []SelectedCard `json:"active-cards"`
+	SelectedCards []SelectedCard `json:"selected-cards"`
 }
