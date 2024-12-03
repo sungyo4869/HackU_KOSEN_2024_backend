@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT,
     username VARCHAR(64) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -24,11 +25,11 @@ CREATE TABLE IF NOT EXISTS user_selected (
 );
 
 INSERT INTO
-    users (username)
+    users (username, password)
 VALUES
-    ('user1'),
-    ('user2'),
-    ('user3');
+    ('user1', 1),
+    ('user2', 2),
+    ('user3', 3);
 
 INSERT INTO
     cards (user_id, picture, card_name)
