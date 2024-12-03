@@ -31,7 +31,7 @@ func (h *CardHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		cards, err := h.svc.ReadCard(r.Context(), int(userID))
+		cards, err := h.svc.ReadCard(r.Context(), int(userID), []int{})
 		if err != nil {
 			http.Error(w, "cards is not found", http.StatusNotFound)
 			log.Println("cards is not found, err = ", err)
