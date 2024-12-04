@@ -24,6 +24,15 @@ CREATE TABLE IF NOT EXISTS user_selected (
     FOREIGN KEY (card_id) REFERENCES cards(id)
 );
 
+CREATE TABLE IF NOT EXISTS rooms (
+    room_id INT NOT NULL AUTO_INCREMENT,
+    user1_id INT NOT NULL,
+    user2_id INT NOT NULL,
+    PRIMARY KEY (room_id),
+    FOREIGN KEY (user1_id) REFERENCES users(id),
+    FOREIGN KEY (user2_id) REFERENCES users(id)
+);
+
 INSERT INTO
     users (username, password)
 VALUES
