@@ -11,6 +11,10 @@ type (
 		UserId int `json:"user-id"`
 	}
 
+	ReadUserWithIdResponse struct {
+		Username string `json:"username"`
+	}
+
 	LoginResponse struct {
 		Token string `json:"token"`
 	}

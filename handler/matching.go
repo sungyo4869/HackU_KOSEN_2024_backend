@@ -12,14 +12,16 @@ import (
 type MatchingHandler struct {
 	SCSvc *service.SelectedCardService
 	RmSvc *service.RoomService
+	UsrSvc *service.UserService
 	ReadyCh chan *websocket.Conn
 	Player chan *int
 }
 
-func NewMatchingHandler(SCSvc *service.SelectedCardService, RmSvc *service.RoomService) *MatchingHandler {
+func NewMatchingHandler(SCSvc *service.SelectedCardService, RmSvc *service.RoomService, UsrSvc service.UserService) *MatchingHandler {
 	return &MatchingHandler{
 		SCSvc: SCSvc,
 		RmSvc: RmSvc,
+		UsrSvc: &UsrSvc,
 		ReadyCh: make(chan *websocket.Conn, 2),
 		Player: make(chan *int, 2),
 	}
@@ -69,6 +71,10 @@ func (h *MatchingHandler) makeRes(userId []int) (*model.MatchingWSResponse, erro
 	
 	var send model.MatchingWSResponse
 	for _, v := range userId {
+		user, err := h.UsrSvc.ReadUserWithId(v)
+		if err != nil {
+			return nil, err
+		}
 		cards, err := h.SCSvc.ReadSelectedCard(v)
 		if err != nil {
 			return nil, err
@@ -76,7 +82,7 @@ func (h *MatchingHandler) makeRes(userId []int) (*model.MatchingWSResponse, erro
 
 		var player model.Player
 		player.SelectedCards = cards
-		player.Username = "user1"
+		player.Username = user.Username
 
 		send.Players = append(send.Players, player)
 	}

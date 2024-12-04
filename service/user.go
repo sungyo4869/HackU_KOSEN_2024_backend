@@ -39,9 +39,20 @@ func (s *UserService) ReadUser(ctx context.Context, username string, password st
 	res.Token = token
 
 	return &res, nil
-
-	// return &user, nil
 }
+
+func (s *UserService) ReadUserWithId(userId int) (*model.ReadUserWithIdResponse, error){
+	const query = `select username from users where id = ?`
+	var user model.ReadUserWithIdResponse
+
+	row := s.db.QueryRow(query, userId)
+	if err := row.Scan(&user.Username); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (s *UserService) CreateToken(userId int) (string, error) {
 	token := jwt.New(jwt.GetSigningMethod("HS256"))
 	token.Claims = jwt.MapClaims{
