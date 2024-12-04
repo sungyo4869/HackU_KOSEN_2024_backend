@@ -12,12 +12,14 @@ import (
 type MatchingHandler struct {
 	SCSvc *service.SelectedCardService
 	RmSvc *service.RoomService
+	ReadyCh chan *websocket.Conn
 }
 
 func NewMatchingHandler(SCSvc *service.SelectedCardService, RmSvc *service.RoomService) *MatchingHandler {
 	return &MatchingHandler{
 		SCSvc: SCSvc,
 		RmSvc: RmSvc,
+		ReadyCh: make(chan *websocket.Conn, 2),
 	}
 }
 
@@ -35,13 +37,8 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.ReadyCh <- conn
 	defer conn.Close()
-
-	res, err := h.makeRes([]int{1, 2})
-	if err != nil {
-		log.Println("Failed to make response:", err)
-		return
-	}
 
 	for {
 		_, _, err := conn.ReadMessage()
@@ -51,12 +48,6 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			log.Println("Failed to receive message:", err)
-			break
-		}
-
-		err = conn.WriteJSON(res)
-		if err != nil {
-			log.Println("Failed to send message:", err)
 			break
 		}
 	}
@@ -88,3 +79,28 @@ func (h *MatchingHandler) makeRes(userId []int) (*model.MatchingWSResponse, erro
 
 	return &send, nil
 }
+
+func(h *MatchingHandler) StartListening() {
+
+	conn1 := <-h.ReadyCh
+	conn2 := <-h.ReadyCh
+
+	log.Println("ふたりそろったよ")
+
+	res, err := h.makeRes([]int{1, 2})
+	if err != nil {
+		log.Println("Failed to make response:", err)
+		return
+	}
+	
+	err = conn1.WriteJSON(res)
+	if err != nil {
+		log.Println("Failed to send message:", err)
+	}
+
+	err = conn2.WriteJSON(res)
+	if err != nil {
+		log.Println("Failed to send message:", err)
+	}
+}
+
