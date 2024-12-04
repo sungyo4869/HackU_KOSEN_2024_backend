@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"database/sql"
 
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
@@ -17,10 +16,10 @@ func NewSelectedCardService(db *sql.DB) *SelectedCardService {
 	}
 }
 
-func (s *SelectedCardService) ReadSelectedCard(ctx context.Context, userId int) ([]model.SelectedCard, error){
+func (s *SelectedCardService) ReadSelectedCard(userId int) ([]model.SelectedCard, error){
 	query := `SELECT us.attribute, c.card_name, c.id AS card_id, c.picture FROM user_selected us JOIN cards c ON us.card_id = c.id WHERE us.user_id = ?;`
 
-	rows, err := s.db.QueryContext(ctx, query, userId)
+	rows, err := s.db.Query(query, userId)
 	if err != nil {
 		return nil, err
 	}

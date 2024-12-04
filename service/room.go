@@ -2,7 +2,6 @@ package service
 
 
 import (
-	"context"
 	"database/sql"
 
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
@@ -18,13 +17,13 @@ func NewRoomService(db *sql.DB) *RoomService {
 	}
 }
 
-func (s *RoomService) CreateRoom(ctx context.Context, userid []int) (*model.Room, error) {
+func (s *RoomService) CreateRoom(userid []int) (*model.Room, error) {
 	const (
 		insert  = `INSERT INTO rooms(user1_id, user2_id) VALUES(?, ?)`
 		confirm = `SELECT * FROM rooms WHERE room_id = ?`
 	)
 
-	result, err := s.db.ExecContext(ctx, insert, userid[0], userid[1])
+	result, err := s.db.Exec(insert, userid[0], userid[1])
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +33,7 @@ func (s *RoomService) CreateRoom(ctx context.Context, userid []int) (*model.Room
 		return nil, err
 	}
 	var room model.Room
-	row := s.db.QueryRowContext(ctx, confirm, id)
+	row := s.db.QueryRow(confirm, id)
 
 	err = row.Scan(
 		&room.RoomId,
