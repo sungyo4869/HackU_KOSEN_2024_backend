@@ -17,8 +17,8 @@ func NewUserSelectedService(db *sql.DB) *UserSelectedService {
 	}
 }
 
-func (s *UserSelectedService) ReadUserSelected(ctx context.Context, userId int) (*[]model.UserSelected, error) {
-	query := `select * from user_selected where user_id = ?`
+func (s *UserSelectedService) ReadUserSelected(ctx context.Context, userId int) (*[]model.UserSelectedCardResponse, error) {
+	query := `SELECT card_id, attribute from user_selected where user_id = ?`
 
 	rows, err := s.db.QueryContext(ctx, query, userId)
 	if err != nil {
@@ -26,10 +26,10 @@ func (s *UserSelectedService) ReadUserSelected(ctx context.Context, userId int) 
 	}
 	defer rows.Close()
 
-	var selections []model.UserSelected
+	var selections []model.UserSelectedCardResponse
 	for rows.Next() {
-		var selection model.UserSelected
-		if err := rows.Scan(&selection.Id, &selection.UserId, &selection.CardId, &selection.Attribute); err != nil {
+		var selection model.UserSelectedCardResponse
+		if err := rows.Scan(&selection.CardId, &selection.Attribute); err != nil {
 			return nil, err
 		}
 

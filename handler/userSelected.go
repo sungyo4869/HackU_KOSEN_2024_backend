@@ -14,7 +14,7 @@ type UserSelectedHandler struct {
 	svc *service.UserSelectedService
 }
 
-func NewHandHandler(svc service.UserSelectedService) *UserSelectedHandler {
+func NewUserSelectedHandler(svc service.UserSelectedService) *UserSelectedHandler {
 	return &UserSelectedHandler{
 		svc: &svc,
 	}
@@ -23,7 +23,7 @@ func NewHandHandler(svc service.UserSelectedService) *UserSelectedHandler {
 func (h *UserSelectedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		var res model.ReadHandsResponse
+		var res model.ReadUserSelectedCardsResponse
 
 		userId, ok := r.Context().Value(middleware.UserIDKey{}).(int64)
 		if !ok {
@@ -37,6 +37,7 @@ func (h *UserSelectedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 			log.Println("selections is not found, err = ", err)
 		}
 
+		// res.SelectedCards = *selections
 		res.SelectedCards = *selections
 		err = json.NewEncoder(w).Encode(&res)
 		if err != nil {
