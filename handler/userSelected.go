@@ -45,5 +45,38 @@ func (h *UserSelectedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 			log.Println("Login: Filed to encoding json, err = ", err)
 			return
 		}
+
+	case http.MethodPut:
+		var req model.UpdateUserSelectedCardsRequest
+		var res model.ReadUserSelectedCardsResponse
+
+		userId, ok := r.Context().Value(middleware.UserIDKey{}).(int64)
+		if !ok {
+			http.Error(w, "ユーザーIDが見つかりません", http.StatusUnauthorized)
+			return
+		}
+
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			http.Error(w, "Bad Request: Invalid JSON", http.StatusBadRequest)
+			log.Println("Failed to decode request body, err =", err)
+			return
+		}
+
+		selections, err := h.svc.UpdateUserSelected(r.Context(), int(userId), req.SelectedCards)
+		if err != nil {
+			http.Error(w, "selections is not found", http.StatusNotFound)
+			log.Println("selections is not found, err = ", err)
+			return
+		}
+
+		// res.SelectedCards = *selections
+		res.SelectedCards = *selections
+		err = json.NewEncoder(w).Encode(&res)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			log.Println("Login: Filed to encoding json, err = ", err)
+			return
+		}
 	}
 }
