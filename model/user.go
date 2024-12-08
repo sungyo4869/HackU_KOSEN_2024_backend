@@ -7,9 +7,13 @@ type (
 		Password string `json:"password"`
 	}
 
-	// ReadUserResponse struct {
-	// 	UserId int `json:"user-id"`
-	// }
+	ReadUserResponse struct {
+		UserId int `json:"user-id"`
+	}
+
+	ReadUserWithIdResponse struct {
+		Username string `json:"username"`
+	}
 
 	LoginResponse struct {
 		Token string `json:"token"`

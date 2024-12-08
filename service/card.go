@@ -17,10 +17,21 @@ func NewCardService(db *sql.DB) *CardService {
 	}
 }
 
-func(s *CardService) ReadCard(ctx context.Context, userId int) (*[]model.Card, error){
-	query := `select * from cards where user_id = ?`
+func(s *CardService) ReadCard(ctx context.Context, userId int, cardId []int) (*[]model.Card, error){
+	const (
+        read = `select * from cards where user_id = ?`
+        readWithId = `select * from cards where user_id = ? and card_id in (?, ?, ?, ?, ?, ?)`
+    )
 
-    rows, err := s.db.QueryContext(ctx, query, userId)
+    var rows *sql.Rows
+    var err error
+
+    if len(cardId) == 0{
+        rows, err = s.db.QueryContext(ctx, read, userId)
+    } else {
+        rows, err = s.db.QueryContext(ctx, readWithId, cardId[0], cardId[1], cardId[2], cardId[3], cardId[4], cardId[5])
+    }
+
     if err != nil {
         return nil, err
     }
