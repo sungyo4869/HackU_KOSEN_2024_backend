@@ -31,14 +31,13 @@ func (h *UserSelectedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		selections, err := h.svc.ReadUserSelected(r.Context(), int(userId))
+		selected, err := h.svc.ReadUserSelected(r.Context(), int(userId))
 		if err != nil {
-			http.Error(w, "selections is not found", http.StatusNotFound)
-			log.Println("selections is not found, err = ", err)
+			http.Error(w, "selected is not found", http.StatusNotFound)
+			log.Println("selected is not found, err = ", err)
 		}
 
-		// res.SelectedCards = *selections
-		res.SelectedCards = *selections
+		res.SelectedCards = *selected
 		err = json.NewEncoder(w).Encode(&res)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -63,15 +62,14 @@ func (h *UserSelectedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		selections, err := h.svc.UpdateUserSelected(r.Context(), int(userId), req.SelectedCards)
+		selected, err := h.svc.UpdateUserSelected(r.Context(), int(userId), req.SelectedCards)
 		if err != nil {
-			http.Error(w, "selections is not found", http.StatusNotFound)
-			log.Println("selections is not found, err = ", err)
+			http.Error(w, "selected is not found", http.StatusNotFound)
+			log.Println("selected is not found, err = ", err)
 			return
 		}
 
-		// res.SelectedCards = *selections
-		res.SelectedCards = *selections
+		res.SelectedCards = *selected
 		err = json.NewEncoder(w).Encode(&res)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)

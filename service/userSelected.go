@@ -27,17 +27,17 @@ func (s *UserSelectedService) ReadUserSelected(ctx context.Context, userId int) 
 	}
 	defer rows.Close()
 
-	var selections []model.UserSelectedCardResponse
+	var selectedCards []model.UserSelectedCardResponse
 	for rows.Next() {
-		var selection model.UserSelectedCardResponse
-		if err := rows.Scan(&selection.Id, &selection.CardId, &selection.Attribute); err != nil {
+		var selectedCard model.UserSelectedCardResponse
+		if err := rows.Scan(&selectedCard.Id, &selectedCard.CardId, &selectedCard.Attribute); err != nil {
 			return nil, err
 		}
 
-		selections = append(selections, selection)
+		selectedCards = append(selectedCards, selectedCard)
 	}
 
-	return &selections, nil
+	return &selectedCards, nil
 }
 
 func (s *UserSelectedService) UpdateUserSelected(ctx context.Context, userId int, userSelectedCards []model.UpdateUserSelectedCards) (*[]model.UserSelectedCardResponse, error) {
@@ -74,11 +74,6 @@ func (s *UserSelectedService) UpdateUserSelected(ctx context.Context, userId int
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
-
-	// id, err := result.LastInsertId()
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	rows, err := s.db.QueryContext(ctx, confirm, userId)
 	if err != nil {
