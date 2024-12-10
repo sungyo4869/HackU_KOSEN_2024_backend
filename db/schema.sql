@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS user_selected (
     id INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     card_id INT NOT NULL,
-    attribute ENUM('red', 'blue', 'green', 'kamekame', 'nankuru') NOT NULL,
+    attribute ENUM('red', 'blue', 'green', 'kamekame', 'nankuru', 'random') NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (card_id) REFERENCES cards(id)
