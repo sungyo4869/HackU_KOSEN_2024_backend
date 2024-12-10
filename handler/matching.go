@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -10,24 +11,24 @@ import (
 )
 
 type MatchingHandler struct {
-	SCSvc *service.SelectedCardService
-	RmSvc *service.RoomService
-	UsrSvc *service.UserService
-	BtlSvc *service.BattleService
+	SCSvc   *service.SelectedCardService
+	RmSvc   *service.RoomService
+	UsrSvc  *service.UserService
+	BtlSvc  *service.BattleService
 	ReadyCh chan *websocket.Conn
-	Player chan *int
-	RoomId chan *int
+	Player  chan *int
+	RoomId  chan *int
 }
 
 func NewMatchingHandler(SCSvc service.SelectedCardService, RmSvc service.RoomService, UsrSvc service.UserService, BtlSvc service.BattleService) *MatchingHandler {
 	return &MatchingHandler{
-		SCSvc: &SCSvc,
-		RmSvc: &RmSvc,
-		UsrSvc: &UsrSvc,
-		BtlSvc: &BtlSvc,
+		SCSvc:   &SCSvc,
+		RmSvc:   &RmSvc,
+		UsrSvc:  &UsrSvc,
+		BtlSvc:  &BtlSvc,
 		ReadyCh: make(chan *websocket.Conn, 2),
-		Player: make(chan *int, 2),
-		RoomId: make(chan *int, 2),
+		Player:  make(chan *int, 2),
+		RoomId:  make(chan *int, 2),
 	}
 }
 
@@ -42,7 +43,7 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Failed to upgrade to WebSocket:", err)
-		http.Error(w, "Failed to upgrade to WebSocket", http.StatusInternalServerError)	
+		http.Error(w, "Failed to upgrade to WebSocket", http.StatusInternalServerError)
 		return
 	}
 
@@ -50,7 +51,7 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	msg := model.ReadUserResponse{}
 	err = conn.ReadJSON(&msg)
-	if err != nil{
+	if err != nil {
 		log.Println("Failed to receive json:", err)
 		return
 	}
@@ -75,8 +76,8 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *MatchingHandler) makeRes(userId []int) (*model.MatchingWSResponse, error) {
-	
+func (h *MatchingHandler) createRes(userId []int) (*model.MatchingWSResponse, error) {
+
 	var send model.MatchingWSResponse
 	for _, v := range userId {
 		user, err := h.UsrSvc.ReadUserWithId(v)
@@ -107,7 +108,7 @@ func (h *MatchingHandler) makeRes(userId []int) (*model.MatchingWSResponse, erro
 	return &send, nil
 }
 
-func(h *MatchingHandler) StartListening() {
+func (h *MatchingHandler) StartListening() {
 	for {
 		conn1 := <-h.ReadyCh
 		conn2 := <-h.ReadyCh
@@ -119,44 +120,34 @@ func(h *MatchingHandler) StartListening() {
 
 		log.Println("2人そろったよ")
 
-		res, err := h.makeRes([]int{*player1, *player2})
+		res, err := h.createRes([]int{*player1, *player2})
 		if err != nil {
 			log.Println("Failed to make response:", err)
 			return
 		}
 
-		// インデックスで指定してるけど、attribute==fireなインデクスの.cardIdみたいに指定しないとだめ
+		roomId := <-h.RoomId
 
-		roomId := <- h.RoomId
-
-		battle := &model.InitializeBattleRequest{
-			UserId: *player1,
-			RoomId: *roomId,
-			FireCardId: res.Players[0].SelectedCards[0].CardId,
-			WaterCardId: res.Players[0].SelectedCards[1].CardId,
-			GrassCardId: res.Players[0].SelectedCards[2].CardId,
-			KameKameCardId: res.Players[0].SelectedCards[3].CardId,
-			NankuruCardId: res.Players[0].SelectedCards[4].CardId,
-			RandomCardId: 1,
-			Result: "pending",
+		battle, err := h.CreateBattleRequest(*player1, res.Players[0], *roomId)
+		if err != nil {
+			log.Println("Failed to create battle table request: ", err)
+			return
 		}
-		h.BtlSvc.InitializeBattle(battle)
+		err = h.BtlSvc.InitializeBattle(battle)
+		if err != nil {
+			log.Println("Failed to initialize battle table: ", err)
+			return
+		}
 
-		battle = &model.InitializeBattleRequest{
-			UserId: *player2,
-			RoomId: *roomId,
-			FireCardId: res.Players[1].SelectedCards[0].CardId,
-			WaterCardId: res.Players[1].SelectedCards[1].CardId,
-			GrassCardId: res.Players[1].SelectedCards[2].CardId,
-			KameKameCardId: res.Players[1].SelectedCards[3].CardId,
-			NankuruCardId: res.Players[1].SelectedCards[4].CardId,
-			RandomCardId: 1,
-			Result: "pending",
+		battle, err = h.CreateBattleRequest(*player2, res.Players[1], *roomId)
+		if err != nil {
+			log.Println("Failed to create battle table request: ", err)
+			return
 		}
 
 		err = h.BtlSvc.InitializeBattle(battle)
 		if err != nil {
-			log.Println("Failed to make response:", err)
+			log.Println("Failed to initialize battle table:", err)
 			return
 		}
 
@@ -181,3 +172,43 @@ func(h *MatchingHandler) StartListening() {
 	}
 }
 
+func (h *MatchingHandler) CreateBattleRequest(playerId int, player model.Player, roomId int) (*model.InitializeBattleRequest, error) {
+	var redCardId, blueCardId, greenCardId, kameKameCardId, nankuruCardId, randomCardId int
+	for _, card := range player.SelectedCards {
+		switch card.Attribute {
+		case "red":
+			redCardId = card.CardId
+		case "blue":
+			blueCardId = card.CardId
+		case "green":
+			greenCardId = card.CardId
+		case "kamekame":
+			kameKameCardId = card.CardId
+		case "nankuru":
+			nankuruCardId = card.CardId
+		case "random":
+			randomCardId = card.CardId
+		}
+	}
+
+	log.Println(redCardId, blueCardId, greenCardId, kameKameCardId, nankuruCardId, randomCardId)
+
+	if redCardId == 0 || blueCardId == 0 || greenCardId == 0 || kameKameCardId == 0 || nankuruCardId == 0 || randomCardId == 0{
+		return nil, fmt.Errorf("missing card attributes for player: %v", player.Username)
+	}
+
+	// InitializeBattleRequestを生成
+	battleRequest := &model.InitializeBattleRequest{
+		UserId:         playerId,
+		RoomId:         roomId,
+		FireCardId:     redCardId,
+		WaterCardId:    blueCardId,
+		GrassCardId:    greenCardId,
+		KameKameCardId: kameKameCardId,
+		NankuruCardId:  nankuruCardId,
+		RandomCardId:   randomCardId,
+		Result:         "pending",
+	}
+
+	return battleRequest, nil
+}
