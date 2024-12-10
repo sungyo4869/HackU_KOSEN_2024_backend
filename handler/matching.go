@@ -13,17 +13,21 @@ type MatchingHandler struct {
 	SCSvc *service.SelectedCardService
 	RmSvc *service.RoomService
 	UsrSvc *service.UserService
+	BtlSvc *service.BattleService
 	ReadyCh chan *websocket.Conn
 	Player chan *int
+	RoomId chan *int
 }
 
-func NewMatchingHandler(SCSvc *service.SelectedCardService, RmSvc *service.RoomService, UsrSvc service.UserService) *MatchingHandler {
+func NewMatchingHandler(SCSvc service.SelectedCardService, RmSvc service.RoomService, UsrSvc service.UserService, BtlSvc service.BattleService) *MatchingHandler {
 	return &MatchingHandler{
-		SCSvc: SCSvc,
-		RmSvc: RmSvc,
+		SCSvc: &SCSvc,
+		RmSvc: &RmSvc,
 		UsrSvc: &UsrSvc,
+		BtlSvc: &BtlSvc,
 		ReadyCh: make(chan *websocket.Conn, 2),
 		Player: make(chan *int, 2),
+		RoomId: make(chan *int, 2),
 	}
 }
 
@@ -34,9 +38,11 @@ var upgrader = websocket.Upgrader{
 }
 
 func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Println("アクセスきてるね")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Failed to upgrade to WebSocket:", err)
+		http.Error(w, "Failed to upgrade to WebSocket", http.StatusInternalServerError)	
 		return
 	}
 
@@ -49,8 +55,12 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("うけとったよ")
+
 	h.Player <- &msg.UserId
 	h.ReadyCh <- conn
+
+	log.Println("チャネルに送ったよ")
 
 	for {
 		_, _, err := conn.ReadMessage()
@@ -66,8 +76,6 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MatchingHandler) makeRes(userId []int) (*model.MatchingWSResponse, error) {
-
-	// user-idからusernameを取得するサービスを実装する
 	
 	var send model.MatchingWSResponse
 	for _, v := range userId {
@@ -94,6 +102,8 @@ func (h *MatchingHandler) makeRes(userId []int) (*model.MatchingWSResponse, erro
 
 	send.RoomId = room.RoomId
 
+	h.RoomId <- &send.RoomId
+
 	return &send, nil
 }
 
@@ -101,11 +111,50 @@ func(h *MatchingHandler) StartListening() {
 	for {
 		conn1 := <-h.ReadyCh
 		conn2 := <-h.ReadyCh
+		log.Println("connきた")
 
 		player1 := <-h.Player
 		player2 := <-h.Player
+		log.Println("idきた")
+
+		log.Println("2人そろったよ")
 
 		res, err := h.makeRes([]int{*player1, *player2})
+		if err != nil {
+			log.Println("Failed to make response:", err)
+			return
+		}
+
+		// インデックスで指定してるけど、attribute==fireなインデクスの.cardIdみたいに指定しないとだめ
+
+		roomId := <- h.RoomId
+
+		battle := &model.InitializeBattleRequest{
+			UserId: *player1,
+			RoomId: *roomId,
+			FireCardId: res.Players[0].SelectedCards[0].CardId,
+			WaterCardId: res.Players[0].SelectedCards[1].CardId,
+			GrassCardId: res.Players[0].SelectedCards[2].CardId,
+			KameKameCardId: res.Players[0].SelectedCards[3].CardId,
+			NankuruCardId: res.Players[0].SelectedCards[4].CardId,
+			RandomCardId: 1,
+			Result: "pending",
+		}
+		h.BtlSvc.InitializeBattle(battle)
+
+		battle = &model.InitializeBattleRequest{
+			UserId: *player2,
+			RoomId: *roomId,
+			FireCardId: res.Players[1].SelectedCards[0].CardId,
+			WaterCardId: res.Players[1].SelectedCards[1].CardId,
+			GrassCardId: res.Players[1].SelectedCards[2].CardId,
+			KameKameCardId: res.Players[1].SelectedCards[3].CardId,
+			NankuruCardId: res.Players[1].SelectedCards[4].CardId,
+			RandomCardId: 1,
+			Result: "pending",
+		}
+
+		err = h.BtlSvc.InitializeBattle(battle)
 		if err != nil {
 			log.Println("Failed to make response:", err)
 			return
