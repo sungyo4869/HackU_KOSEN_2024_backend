@@ -17,7 +17,7 @@ func NewRouter(DB *sql.DB) *http.ServeMux {
 	mux.HandleFunc("/cards", middleware.Auth(handler.NewCardHandler(*service.NewCardService(DB))).ServeHTTP)
 	mux.HandleFunc("/select", middleware.Auth(handler.NewUserSelectHandler(*service.NewUserSelectService(DB))).ServeHTTP)
 
-	h := handler.NewMatchingHandler(service.NewSelectedCardService(DB), service.NewRoomService(DB), *service.NewUserService(DB))
+	h := handler.NewMatchingHandler(*service.NewSelectedCardService(DB), *service.NewRoomService(DB), *service.NewUserService(DB), *service.NewBattleService(DB))
 	mux.HandleFunc("/ws/matching", h.ServeHTTP)
 	go h.StartListening()
 
