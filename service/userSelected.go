@@ -42,7 +42,7 @@ func (s *UserSelectService) ReadUserSelect(ctx context.Context, userId int) (*[]
 
 func (s *UserSelectService) UpdateUserSelect(ctx context.Context, userId int, userSelectCards []model.UpdateUserSelectCards) (*[]model.UserSelectCardResponse, error) {
 	checkOwnership := `SELECT COUNT(*) FROM cards WHERE id = ? AND user_id = ?`
-	update := `UPDATE user_selected SET card_id = ? WHERE id = ? AND user_id = ?`
+	update := `UPDATE user_selected SET card_id = ? WHERE attribute = ? AND user_id = ?`
 	confirm := `SELECT id, card_id, attribute FROM user_selected WHERE user_id = ?`
 
 	var resCards []model.UserSelectCardResponse
@@ -63,7 +63,7 @@ func (s *UserSelectService) UpdateUserSelect(ctx context.Context, userId int, us
 			tx.Rollback()
 			return nil, fmt.Errorf("card_id %d does not belong to user_id %d", userSelectCard.CardId, userId)
 		}
-		_, err = tx.ExecContext(ctx, update, userSelectCard.CardId, userSelectCard.SelectCardId, userId)
+		_, err = tx.ExecContext(ctx, update, userSelectCard.CardId, userSelectCard.Attribute, userId)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
