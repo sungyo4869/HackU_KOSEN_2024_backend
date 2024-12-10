@@ -9,9 +9,9 @@ type (
 	}
 
 	UserSelectCardResponse struct {
-		Id        int    `json:"Id"`
-		CardId    int    `json:"cardId"`
-		Attribute string `json:"attribute"`
+		SelectCardId int    `json:"selectCardId"`
+		CardId       int    `json:"cardId"`
+		Attribute    string `json:"attribute"`
 	}
 
 	ReadUserSelectCardsResponse struct {
@@ -19,8 +19,8 @@ type (
 	}
 
 	UpdateUserSelectCards struct {
-		UserSelectCardId int `json:"userSelectedCardId"`
-		CardId           int `json:"cardId"`
+		SelectCardId int `json:"selectedCardId"`
+		CardId       int `json:"cardId"`
 	}
 
 	UpdateUserSelectCardsRequest struct {

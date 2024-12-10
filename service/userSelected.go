@@ -30,7 +30,7 @@ func (s *UserSelectService) ReadUserSelect(ctx context.Context, userId int) (*[]
 	var selectCards []model.UserSelectCardResponse
 	for rows.Next() {
 		var selectCard model.UserSelectCardResponse
-		if err := rows.Scan(&selectCard.Id, &selectCard.CardId, &selectCard.Attribute); err != nil {
+		if err := rows.Scan(&selectCard.SelectCardId, &selectCard.CardId, &selectCard.Attribute); err != nil {
 			return nil, err
 		}
 
@@ -63,7 +63,7 @@ func (s *UserSelectService) UpdateUserSelect(ctx context.Context, userId int, us
 			tx.Rollback()
 			return nil, fmt.Errorf("card_id %d does not belong to user_id %d", userSelectCard.CardId, userId)
 		}
-		_, err = tx.ExecContext(ctx, update, userSelectCard.CardId, userSelectCard.UserSelectCardId, userId)
+		_, err = tx.ExecContext(ctx, update, userSelectCard.CardId, userSelectCard.SelectCardId, userId)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
@@ -84,7 +84,7 @@ func (s *UserSelectService) UpdateUserSelect(ctx context.Context, userId int, us
 	for rows.Next() {
 		var resCard model.UserSelectCardResponse
 		err := rows.Scan(
-			&resCard.Id,
+			&resCard.SelectCardId,
 			&resCard.CardId,
 			&resCard.Attribute,
 		)
