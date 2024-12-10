@@ -98,23 +98,26 @@ VALUES
     (3, 'card30.jpg', 'カード30');
 
 INSERT INTO
-    user_selected (user_id, card_id)
+    user_selected (user_id, card_id, attribute)
 VALUES
-    (1, 2),
-    (1, 3),
-    (1, 5),
-    (1, 7),
-    (1, 9),
-    (2, 11),
-    (2, 12),
-    (2, 14),
-    (2, 16),
-    (2, 18),
-    (3, 20),
-    (3, 21),
-    (3, 23),
-    (3, 25),
-    (3, 27);
+    (1, 2, 'red'),
+    (1, 3, 'blue'),
+    (1, 5, 'green'),
+    (1, 7, 'kamekame'),
+    (1, 9, 'nankuru'),
+    (1, 10, 'random'),
+    (2, 11, 'red'),
+    (2, 12, 'blue'),
+    (2, 14, 'green'),
+    (2, 16, 'kamekame'),
+    (2, 18, 'nankuru'),
+    (2, 19, 'random'),
+    (3, 20, 'red'),
+    (3, 21, 'blue'),
+    (3, 23, 'green'),
+    (3, 25, 'kamekame'),
+    (3, 27, 'nankuru'),
+    (3, 29, 'random');
 
 INSERT INTO
     rooms(user1_id, user2_id)
@@ -136,7 +139,7 @@ INSERT INTO
         result
     )
 VALUES
-    (3, 1, 2, 3, 4, 5, 6, 7, 3, 'win'),
-    (3, 2, 13, 14, 15, 16, 17, 18, 0, 'lose'),
-    (4, 1, 4, 5, 6, 7, 8, 9, 1, 'draw'),
-    (4, 2, 14, 15, 16, 17, 18, 19, 1, 'draw');
+    (1, 1, 2, 3, 4, 5, 6, 7, 3, 'win'),
+    (1, 2, 13, 14, 15, 16, 17, 18, 0, 'lose'),
+    (2, 1, 4, 5, 6, 7, 8, 9, 1, 'draw'),
+    (2, 2, 14, 15, 16, 17, 18, 19, 1, 'draw');
