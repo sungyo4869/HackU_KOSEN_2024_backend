@@ -8,12 +8,22 @@ type (
 		Attribute string
 	}
 
-	UserSelectedCardResponse struct {
-		CardId    int    `json:"cardId"`
-		Attribute string `json:"attribute"`
+	UserSelectCardResponse struct {
+		SelectCardId int    `json:"selectCardId"`
+		CardId       int    `json:"cardId"`
+		Attribute    string `json:"attribute"`
 	}
 
-	ReadUserSelectedCardsResponse struct {
-		SelectedCards []UserSelectedCardResponse `json:"selectedCards"`
+	ReadUserSelectCardsResponse struct {
+		SelectCards []UserSelectCardResponse `json:"selectedCards"`
+	}
+
+	UpdateUserSelectCards struct {
+		Attribute string `json:"attribute"`
+		CardId    int    `json:"cardId"`
+	}
+
+	UpdateUserSelectCardsRequest struct {
+		SelectCards []UpdateUserSelectCards `json:"selectedCards"`
 	}
 )
