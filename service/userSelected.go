@@ -18,23 +18,6 @@ func NewUserSelectService(db *sql.DB) *UserSelectService {
 	}
 }
 
-func (s *UserSelectService) ReadAttribute(cardId int64) (string, error) {
-    query := `SELECT attribute from user_selected where card_id = ?`
-    row := s.db.QueryRow(query, cardId)
-
-    var attribute string
-    err := row.Scan(&attribute)
-    if err != nil {
-        if err == sql.ErrNoRows {
-            return "", fmt.Errorf("no attribute found for card_id %d", cardId)
-        }
-        return "", fmt.Errorf("failed to query attribute: %v", err)
-    }
-
-    return attribute, nil
-}
-
-
 func (s *UserSelectService) ReadUserSelect(ctx context.Context, userId int) (*[]model.UserSelectCardResponse, error) {
 	query := `SELECT id, card_id, attribute from user_selected where user_id = ?`
 
