@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/sugyo4869/HackU_KOSEN_2024/model"
@@ -120,28 +122,38 @@ func (h *MatchingHandler) StartListening() {
 
 		roomId := <-h.RoomId
 
-		battle, err := h.CreateBattleRequest(*player1, res.Players[0], *roomId)
+		InitRequest, err := h.CreateBattleRequest(*player1, res.Players[0], *roomId)
 		if err != nil {
 			log.Println("Failed to create battle table request: ", err)
 			return
 		}
-		err = h.BtlSvc.InitializeBattle(battle)
+		battle1, err := h.BtlSvc.InitializeBattle(InitRequest)
 		if err != nil {
 			log.Println("Failed to initialize battle table: ", err)
 			return
 		}
 
-		battle, err = h.CreateBattleRequest(*player2, res.Players[1], *roomId)
+		InitRequest, err = h.CreateBattleRequest(*player2, res.Players[1], *roomId)
 		if err != nil {
 			log.Println("Failed to create battle table request: ", err)
 			return
 		}
 
-		err = h.BtlSvc.InitializeBattle(battle)
+		battle2, err := h.BtlSvc.InitializeBattle(InitRequest)
 		if err != nil {
 			log.Println("Failed to initialize battle table:", err)
 			return
 		}
+
+		res.Players[0].SelectedCards = append(res.Players[0].SelectedCards, model.SelectedCard{
+			CardId: battle1.RandomCardId.Int64,
+			Attribute: battle1.RandomAttribute,
+		})
+
+		res.Players[1].SelectedCards = append(res.Players[0].SelectedCards, model.SelectedCard{
+			CardId: battle2.RandomCardId.Int64,
+			Attribute: battle2.RandomAttribute,
+		})
 
 		err = conn1.WriteJSON(res)
 		if err != nil {
@@ -183,23 +195,35 @@ func (h *MatchingHandler) CreateBattleRequest(playerId int64, player model.Playe
 		}
 	}
 
-	log.Println(redCardId, blueCardId, greenCardId, kameKameCardId, nankuruCardId, randomCardId)
-
 	if redCardId == 0 || blueCardId == 0 || greenCardId == 0 || kameKameCardId == 0 || nankuruCardId == 0 || randomCardId == 0 {
 		return nil, fmt.Errorf("missing card attributes for player: %v", player.Username)
 	}
 
 	battleRequest := &model.InitializeBattleRequest{
-		UserId:         playerId,
-		RoomId:         roomId,
-		RedCardId:      sql.NullInt64{Int64: redCardId, Valid: true},
-		BlueCardId:     sql.NullInt64{Int64: blueCardId, Valid: true},
-		GreenCardId:    sql.NullInt64{Int64: greenCardId, Valid: true},
-		KameKameCardId: sql.NullInt64{Int64: kameKameCardId, Valid: true},
-		NankuruCardId:  sql.NullInt64{Int64: nankuruCardId, Valid: true},
-		RandomCardId:   sql.NullInt64{Int64: randomCardId, Valid: true},
-		Result:         "pending",
+		UserId:          playerId,
+		RoomId:          roomId,
+		RedCardId:       sql.NullInt64{Int64: redCardId, Valid: true},
+		BlueCardId:      sql.NullInt64{Int64: blueCardId, Valid: true},
+		GreenCardId:     sql.NullInt64{Int64: greenCardId, Valid: true},
+		KameKameCardId:  sql.NullInt64{Int64: kameKameCardId, Valid: true},
+		NankuruCardId:   sql.NullInt64{Int64: nankuruCardId, Valid: true},
+		RandomCardId:    sql.NullInt64{Int64: randomCardId, Valid: true},
+		RandomAttribute: h.CreateRandomColor(),
+		Result:          "pending",
 	}
 
 	return battleRequest, nil
+}
+
+func (h *MatchingHandler) CreateRandomColor() string {
+	rand.Seed(time.Now().UnixNano())
+
+	switch rand.Intn(3) {
+	case 0:
+		return "red"
+	case 1:
+		return "blue"
+	default:
+		return "green"
+	}
 }
