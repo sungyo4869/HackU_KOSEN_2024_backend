@@ -1,13 +1,13 @@
 CREATE TABLE IF NOT EXISTS users (
-    id INT NOT NULL AUTO_INCREMENT,
+    id BIGINT NOT NULL AUTO_INCREMENT,
     username VARCHAR(64) NOT NULL,
     password VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS cards (
-    id INT NOT NULL AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
     picture VARCHAR(64) NOT NULL,
     card_name VARCHAR(64) NOT NULL,
     PRIMARY KEY (id),
@@ -15,9 +15,9 @@ CREATE TABLE IF NOT EXISTS cards (
 );
 
 CREATE TABLE IF NOT EXISTS user_selected (
-    id INT NOT NULL AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    card_id INT NOT NULL,
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    card_id BIGINT NOT NULL,
     attribute ENUM('red', 'blue', 'green', 'kamekame', 'nankuru', 'random') NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES users(id),
@@ -25,32 +25,32 @@ CREATE TABLE IF NOT EXISTS user_selected (
 );
 
 CREATE TABLE IF NOT EXISTS rooms (
-    room_id INT NOT NULL AUTO_INCREMENT,
-    user1_id INT NOT NULL,
-    user2_id INT NOT NULL,
+    room_id BIGINT NOT NULL AUTO_INCREMENT,
+    user1_id BIGINT NOT NULL,
+    user2_id BIGINT NOT NULL,
     PRIMARY KEY (room_id),
     FOREIGN KEY (user1_id) REFERENCES users(id),
     FOREIGN KEY (user2_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS battles (
-    battle_id INT NOT NULL AUTO_INCREMENT,
-    room_id INT NOT NULL,
-    user_id INT NOT NULL,
-    fire_card_id INT,
-    water_card_id INT,
-    grass_card_id INT,
-    kamekame_card_id INT,
-    nankuru_card_id INT,
-    random_card_id INT,
+    battle_id BIGINT NOT NULL AUTO_INCREMENT,
+    room_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    red_card_id BIGINT,
+    blue_card_id BIGINT,
+    green_card_id BIGINT,
+    kamekame_card_id BIGINT,
+    nankuru_card_id BIGINT,
+    random_card_id BIGINT,
     hp INT NOT NULL,
     result ENUM('win', 'lose', 'draw', 'pending') NOT NULL,
     PRIMARY KEY (battle_id),
     FOREIGN KEY (room_id) REFERENCES rooms(room_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (fire_card_id) REFERENCES cards(id),
-    FOREIGN KEY (water_card_id) REFERENCES cards(id),
-    FOREIGN KEY (grass_card_id) REFERENCES cards(id),
+    FOREIGN KEY (red_card_id) REFERENCES cards(id),
+    FOREIGN KEY (blue_card_id) REFERENCES cards(id),
+    FOREIGN KEY (green_card_id) REFERENCES cards(id),
     FOREIGN KEY (kamekame_card_id) REFERENCES cards(id),
     FOREIGN KEY (nankuru_card_id) REFERENCES cards(id),
     FOREIGN KEY (random_card_id) REFERENCES cards(id)
@@ -129,9 +129,9 @@ INSERT INTO
     battles (
         room_id,
         user_id,
-        fire_card_id,
-        water_card_id,
-        grass_card_id,
+        red_card_id,
+        blue_card_id,
+        green_card_id,
         kamekame_card_id,
         nankuru_card_id,
         random_card_id,
