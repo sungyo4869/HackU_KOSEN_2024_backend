@@ -53,7 +53,7 @@ func (s *UserService) ReadUserWithId(userId int) (*model.ReadUserWithIdResponse,
 	return &user, nil
 }
 
-func (s *UserService) CreateToken(userId int) (string, error) {
+func (s *UserService) CreateToken(userId int64) (string, error) {
 	token := jwt.New(jwt.GetSigningMethod("HS256"))
 	token.Claims = jwt.MapClaims{
 		"user_id": userId,
