@@ -13,6 +13,7 @@ type (
 		KameKameCardId sql.NullInt64
 		NankuruCardId  sql.NullInt64
 		RandomCardId       sql.NullInt64
+		RandomAttribute string
 		Hp             int
 		Result         string
 	}
@@ -26,6 +27,7 @@ type (
 		KameKameCardId sql.NullInt64
 		NankuruCardId  sql.NullInt64
 		RandomCardId   sql.NullInt64
+		RandomAttribute string
 		Result         string
 	}
 )
