@@ -21,10 +21,12 @@ type GameHandler struct {
 }
 
 type player struct {
-	conn      *websocket.Conn
-	UserId    *int64
-	RoomId    *int64
-	Attribute *string
+	conn       *websocket.Conn
+	UserId     *int64
+	RoomId     *int64
+	Attribute  *string
+	TurnResult string
+	Hp         int
 }
 
 func NewGameHandler(SCSvc service.SelectedCardService, RmSvc service.RoomService, UsrSvc service.UserService, BtlSvc service.BattleService) *GameHandler {
@@ -66,94 +68,117 @@ func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.RoomId <- &msg.RoomId
 		h.Attribute <- &msg.Attribute
 		h.ReadyCh <- conn
-
-		log.Println("おくりだしました")
 	}
 }
 
 func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameResponse {
 
 	var res model.GameResponse
-	var Result1, Result2 string
 
 	winningRelations := map[string]string{
 		"red":      "green", // 日の出 > 門松
-		"green":    "water", // 門松 > 甘酒
-		"water":    "red",   // 甘酒 > 日の出
+		"green":    "blue", // 門松 > 甘酒
+		"blue":    "red",   // 甘酒 > 日の出
 		"kamekame": "all",   // かめーかめー攻撃 > なんくるないさー以外のすべて
 		"nankuru":  "all",   // なんくるないさー > すべての攻撃を防ぐ
 	}
 
-	if player1.Attribute == player2.Attribute {
-		Result1 = "draw"
-		Result2 = "draw"
-	} else if winningRelations[*player1.Attribute] == *player2.Attribute ||
-		*player1.Attribute == "kamekame" && *player2.Attribute != "nankuru" {
-		Result1 = "win"
-		Result2 = "lose"
-	} else if winningRelations[*player2.Attribute] == *player1.Attribute ||
-		*player2.Attribute == "kamekame" && *player1.Attribute != "nankuru" {
-		Result1 = "lose"
-		Result2 = "win"
+	if player1.Attribute == player2.Attribute{
+		player1.TurnResult = "draw"
+		player2.TurnResult = "draw"
+	} else if winningRelations[*player1.Attribute] == *player2.Attribute || *player1.Attribute == "kamekame" && *player2.Attribute != "nankuru" {
+		player1.TurnResult = "win"
+		player2.TurnResult = "lose"
+	} else if winningRelations[*player2.Attribute] == *player1.Attribute || *player2.Attribute == "kamekame" && *player1.Attribute != "nankuru" {
+		player1.TurnResult = "lose"
+		player2.TurnResult = "win"
 	} else {
-		Result1 = "draw"
-		Result2 = "draw"
+		player1.TurnResult = "draw"
+		player2.TurnResult = "draw"
 	}
 
-	battle, err := h.BtlSvc.ReadBattle(*player1.UserId, *player1.RoomId)
+	battle1, err := h.BtlSvc.ReadBattle(*player1.UserId, *player1.RoomId)
 	if err != nil {
 		log.Println("failed to read battle table:", err)
 		return nil
 	}
-	hp := battle.Hp
-
-	if Result1 == "lose" {
-		hp = hp - 1
+	player1.Hp = battle1.Hp
+	if player1.TurnResult == "lose" {
+		player1.Hp -= 1
 	}
 
-	battle, err = h.BtlSvc.UpdateBattle(*player1.UserId, *player1.RoomId, *player1.Attribute, hp)
+	battle2, err := h.BtlSvc.ReadBattle(*player2.UserId, *player2.RoomId)
 	if err != nil {
-		log.Println("failed to update battles:",err)
+		log.Println("failed to read battle table:", err)
 		return nil
+	}
+	player2.Hp = battle2.Hp
+	if player2.TurnResult == "lose" {
+		player2.Hp -= 1
+	}
+
+	battle1, err = h.BtlSvc.UpdateBattle(*player1.UserId, *player1.RoomId, *player1.Attribute, player1.Hp)
+	if err != nil {
+		log.Println("failed to update battle table", err)
+		return nil
+	}
+	battle2, err = h.BtlSvc.UpdateBattle(*player2.UserId, *player2.RoomId, *player2.Attribute, player2.Hp)
+	if err != nil {
+		log.Println("failed to update battle table", err)
+		return nil
+	}
+
+	if player1.Hp == 0 {
+		battle1, err = h.BtlSvc.UpdateResult(*player1.UserId, *player1.RoomId, "lose")
+		if err != nil {
+			log.Println("failed to update battle result", err)
+			return nil
+		}
+		battle2, err = h.BtlSvc.UpdateResult(*player2.UserId, *player2.RoomId, "win")
+		if err != nil {
+			log.Println("failed to update battle result", err)
+			return nil
+		}
+	} else if player2.Hp == 0 {
+		battle1, err = h.BtlSvc.UpdateResult(*player1.UserId, *player1.RoomId, "win")
+		if err != nil {
+			log.Println("failed to update battle result:", err)
+			return nil
+		}
+		battle2, err = h.BtlSvc.UpdateResult(*player2.UserId, *player2.RoomId, "lose")
+		if err != nil {
+			log.Println("failed to update battle result:", err)
+			return nil
+		}
 	}
 
 	result := &model.GameResult{
 		UserId:          *player1.UserId,
-		Hp:              battle.Hp,
 		SelectAttribute: *player1.Attribute,
-		Result:          Result1,
-		RedCardId:       battle.RedCardId,
-		BlueCardId:      battle.BlueCardId,
-		GreenCardId:     battle.GreenCardId,
-		KameKameCardId:  battle.KameKameCardId,
-		NankuruCardId:   battle.NankuruCardId,
-		RandomCardId:    battle.RandomCardId,
+		TurnResult:      player1.TurnResult,
+
+		Hp:             battle1.Hp,
+		RedCardId:      battle1.RedCardId,
+		BlueCardId:     battle1.BlueCardId,
+		GreenCardId:    battle1.GreenCardId,
+		KameKameCardId: battle1.KameKameCardId,
+		NankuruCardId:  battle1.NankuruCardId,
+		RandomCardId:   battle1.RandomCardId,
 	}
 	res.Results = append(res.Results, *result)
 
-	battle, _ = h.BtlSvc.ReadBattle(*player2.UserId, *player2.RoomId)
-	hp = battle.Hp
-
-	if Result2 == "lose" {
-		hp = hp - 1
-	}
-	battle, err = h.BtlSvc.UpdateBattle(*player2.UserId, *player2.RoomId, *player2.Attribute, hp)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
 	result = &model.GameResult{
 		UserId:          *player2.UserId,
-		Hp:              2,
 		SelectAttribute: *player1.Attribute,
-		Result:          Result2,
-		RedCardId:       battle.RedCardId,
-		BlueCardId:      battle.BlueCardId,
-		GreenCardId:     battle.GreenCardId,
-		KameKameCardId:  battle.KameKameCardId,
-		NankuruCardId:   battle.NankuruCardId,
-		RandomCardId:    battle.RandomCardId,
+		TurnResult:      player2.TurnResult,
+
+		Hp:             battle2.Hp,
+		RedCardId:      battle2.RedCardId,
+		BlueCardId:     battle2.BlueCardId,
+		GreenCardId:    battle2.GreenCardId,
+		KameKameCardId: battle2.KameKameCardId,
+		NankuruCardId:  battle2.NankuruCardId,
+		RandomCardId:   battle2.RandomCardId,
 	}
 	res.Results = append(res.Results, *result)
 
@@ -161,9 +186,6 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameRes
 }
 
 func (h *GameHandler) StartListening() {
-
-	log.Println("はじまるお")
-
 	for {
 		var player1 player
 		var player2 player
@@ -180,7 +202,6 @@ func (h *GameHandler) StartListening() {
 		player1.RoomId = <-h.RoomId
 		player2.RoomId = <-h.RoomId
 
-		log.Println("ふたりそろったよ")
 		log.Println(*player1.UserId, *player1.RoomId, *player1.Attribute)
 		log.Println(*player2.UserId, *player2.RoomId, *player2.Attribute)
 
