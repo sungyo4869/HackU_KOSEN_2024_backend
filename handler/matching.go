@@ -74,7 +74,7 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *MatchingHandler) createRes(userId []int64) (*model.MatchingWSResponse, error) {
+func (h *MatchingHandler) createResponse(userId []int64) (*model.MatchingWSResponse, error) {
 
 	var send model.MatchingWSResponse
 	for _, v := range userId {
@@ -106,7 +106,7 @@ func (h *MatchingHandler) createRes(userId []int64) (*model.MatchingWSResponse, 
 	return &send, nil
 }
 
-func (h *MatchingHandler) StartListening() {
+func (h *MatchingHandler) StartMatching() {
 	for {
 		conn1 := <-h.ReadyCh
 		conn2 := <-h.ReadyCh
@@ -114,7 +114,7 @@ func (h *MatchingHandler) StartListening() {
 		player1 := <-h.Player
 		player2 := <-h.Player
 
-		res, err := h.createRes([]int64{*player1, *player2})
+		res, err := h.createResponse([]int64{*player1, *player2})
 		if err != nil {
 			log.Println("Failed to make response:", err)
 			return
@@ -122,7 +122,7 @@ func (h *MatchingHandler) StartListening() {
 
 		roomId := <-h.RoomId
 
-		InitRequest, err := h.CreateBattleRequest(*player1, res.Players[0], *roomId)
+		InitRequest, err := h.NewBattleRequest(*player1, res.Players[0], *roomId)
 		if err != nil {
 			log.Println("Failed to create battle table request: ", err)
 			return
@@ -133,7 +133,7 @@ func (h *MatchingHandler) StartListening() {
 			return
 		}
 
-		InitRequest, err = h.CreateBattleRequest(*player2, res.Players[1], *roomId)
+		InitRequest, err = h.NewBattleRequest(*player2, res.Players[1], *roomId)
 		if err != nil {
 			log.Println("Failed to create battle table request: ", err)
 			return
@@ -146,12 +146,12 @@ func (h *MatchingHandler) StartListening() {
 		}
 
 		res.Players[0].SelectedCards = append(res.Players[0].SelectedCards, model.SelectedCard{
-			CardId: battle1.RandomCardId.Int64,
+			CardId:    battle1.RandomCardId.Int64,
 			Attribute: battle1.RandomAttribute,
 		})
 
 		res.Players[1].SelectedCards = append(res.Players[0].SelectedCards, model.SelectedCard{
-			CardId: battle2.RandomCardId.Int64,
+			CardId:    battle2.RandomCardId.Int64,
 			Attribute: battle2.RandomAttribute,
 		})
 
@@ -176,7 +176,7 @@ func (h *MatchingHandler) StartListening() {
 	}
 }
 
-func (h *MatchingHandler) CreateBattleRequest(playerId int64, player model.Player, roomId int64) (*model.InitializeBattleRequest, error) {
+func (h *MatchingHandler) NewBattleRequest(playerId int64, player model.Player, roomId int64) (*model.InitializeBattleRequest, error) {
 	var redCardId, blueCardId, greenCardId, kameKameCardId, nankuruCardId, randomCardId int64
 	for _, card := range player.SelectedCards {
 		switch card.Attribute {
