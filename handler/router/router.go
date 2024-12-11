@@ -21,7 +21,7 @@ func NewRouter(DB *sql.DB) *http.ServeMux {
 	mux.HandleFunc("/ws/matching", h1.ServeHTTP)
 	go h1.StartListening()
 
-	h2 := handler.NewGameHandler(*service.NewSelectedCardService(DB), *service.NewRoomService(DB), *service.NewUserService(DB))
+	h2 := handler.NewGameHandler(*service.NewSelectedCardService(DB), *service.NewRoomService(DB), *service.NewUserService(DB), *service.NewBattleService(DB))
 	mux.HandleFunc("/ws/game", h2.ServeHTTP)
 	go h2.StartListening()
 

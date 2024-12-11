@@ -20,12 +20,12 @@ func NewBattleService(db *sql.DB) *BattleService {
 func (s *BattleService) InitializeBattle(data *model.InitializeBattleRequest) error {
 	const (
 		insert = `INSERT INTO battles (
-			user_id, room_id, fire_card_id, water_card_id, grass_card_id, 
+			user_id, room_id, red_card_id, blue_card_id, green_card_id, 
 			kamekame_card_id, nankuru_card_id, random_card_id, hp, result
 		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 	)
 
-	_, err := s.db.Exec(insert, data.UserId, data.RoomId, data.FireCardId, data.WaterCardId, data.GrassCardId, data.KameKameCardId, data.NankuruCardId, data.RandomCardId, 3, "pending")
+	_, err := s.db.Exec(insert, data.UserId, data.RoomId, data.RedCardId, data.BlueCardId, data.GreenCardId, data.KameKameCardId, data.NankuruCardId, data.RandomCardId, 3, "pending")
 	if err != nil {
 		return err
 	}
@@ -33,24 +33,44 @@ func (s *BattleService) InitializeBattle(data *model.InitializeBattleRequest) er
 	return nil
 }
 
-func (s *BattleService) UpdateBattle(userId int, roomId int, column string, hp int) error {
-	query := fmt.Sprintf("UPDATE battles SET %s = NULL hp = ? WHERE user_id = ? AND battle_id = ?;", column)
+func (s *BattleService) UpdateBattle(userId int64, roomId int64, attribute string, hp int) (*model.Battle, error) {
+	query := fmt.Sprintf("UPDATE battles SET %s = NULL, hp = ? WHERE user_id = ? AND room_id = ?;", attribute+"_card_id")
+	const confirm = `SELECT * FROM battles WHERE user_id = ? AND room_id = ?`
 
-	_, err := s.db.Exec(query, hp, userId, roomId)
+	// UPDATE クエリの実行
+	result, err := s.db.Exec(query, hp, userId, roomId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	// 変更された行数を確認
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if rowsAffected == 0 {
+		return nil, fmt.Errorf("no rows affected")
+	}
+
+	var res model.Battle
+	row := s.db.QueryRow(confirm, userId, roomId)
+	if err := row.Scan(&res.Battle_id, &res.UserId, &res.RoomId, &res.RedCardId, &res.BlueCardId, &res.GreenCardId, &res.KameKameCardId, &res.NankuruCardId, &res.RandomCardId, &res.Hp, &res.Result); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("no battle found for user_id %d and room_id %d", userId, roomId)
+		}
+		return nil, err
+	}
+
+	return &res, nil
 }
 
-func (s *BattleService) ReadBattle(userId int, roomId int) (*model.Battle, error) {
-	const read = `select * from cards where user_id = ? and room_id = ?`
+func (s *BattleService) ReadBattle(userId int64, roomId int64) (*model.Battle, error) {
+	const read = `select * from battles where user_id = ? and room_id = ?`
 
 	var battle model.Battle
 
-	row := s.db.QueryRow(read, userId,roomId) 
-	if err := row.Scan(&battle.Battle_id, &battle.UserId, &battle.RandomId, &battle.FireCardId, &battle.WaterCardId, &battle.GrassCardId, &battle.KameKameCardId, &battle.NankuruCardId, &battle.RandomId, &battle.Hp, &battle.Result); err != nil {
+	row := s.db.QueryRow(read, userId, roomId)
+	if err := row.Scan(&battle.Battle_id, &battle.UserId, &battle.RoomId, &battle.RedCardId, &battle.BlueCardId, &battle.GreenCardId, &battle.KameKameCardId, &battle.NankuruCardId, &battle.RandomCardId, &battle.Hp, &battle.Result); err != nil {
 		return nil, err
 	}
 

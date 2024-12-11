@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,8 +17,8 @@ type MatchingHandler struct {
 	UsrSvc  *service.UserService
 	BtlSvc  *service.BattleService
 	ReadyCh chan *websocket.Conn
-	Player  chan *int
-	RoomId  chan *int
+	Player  chan *int64
+	RoomId  chan *int64
 }
 
 func NewMatchingHandler(SCSvc service.SelectedCardService, RmSvc service.RoomService, UsrSvc service.UserService, BtlSvc service.BattleService) *MatchingHandler {
@@ -27,8 +28,8 @@ func NewMatchingHandler(SCSvc service.SelectedCardService, RmSvc service.RoomSer
 		UsrSvc:  &UsrSvc,
 		BtlSvc:  &BtlSvc,
 		ReadyCh: make(chan *websocket.Conn, 2),
-		Player:  make(chan *int, 2),
-		RoomId:  make(chan *int, 2),
+		Player:  make(chan *int64, 2),
+		RoomId:  make(chan *int64, 2),
 	}
 }
 
@@ -76,7 +77,7 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *MatchingHandler) createRes(userId []int) (*model.MatchingWSResponse, error) {
+func (h *MatchingHandler) createRes(userId []int64) (*model.MatchingWSResponse, error) {
 
 	var send model.MatchingWSResponse
 	for _, v := range userId {
@@ -120,7 +121,7 @@ func (h *MatchingHandler) StartListening() {
 
 		log.Println("2人そろったよ")
 
-		res, err := h.createRes([]int{*player1, *player2})
+		res, err := h.createRes([]int64{*player1, *player2})
 		if err != nil {
 			log.Println("Failed to make response:", err)
 			return
@@ -172,8 +173,8 @@ func (h *MatchingHandler) StartListening() {
 	}
 }
 
-func (h *MatchingHandler) CreateBattleRequest(playerId int, player model.Player, roomId int) (*model.InitializeBattleRequest, error) {
-	var redCardId, blueCardId, greenCardId, kameKameCardId, nankuruCardId, randomCardId int
+func (h *MatchingHandler) CreateBattleRequest(playerId int64, player model.Player, roomId int64) (*model.InitializeBattleRequest, error) {
+	var redCardId, blueCardId, greenCardId, kameKameCardId, nankuruCardId, randomCardId int64
 	for _, card := range player.SelectedCards {
 		switch card.Attribute {
 		case "red":
@@ -193,20 +194,19 @@ func (h *MatchingHandler) CreateBattleRequest(playerId int, player model.Player,
 
 	log.Println(redCardId, blueCardId, greenCardId, kameKameCardId, nankuruCardId, randomCardId)
 
-	if redCardId == 0 || blueCardId == 0 || greenCardId == 0 || kameKameCardId == 0 || nankuruCardId == 0 || randomCardId == 0{
+	if redCardId == 0 || blueCardId == 0 || greenCardId == 0 || kameKameCardId == 0 || nankuruCardId == 0 || randomCardId == 0 {
 		return nil, fmt.Errorf("missing card attributes for player: %v", player.Username)
 	}
 
-	// InitializeBattleRequestを生成
 	battleRequest := &model.InitializeBattleRequest{
 		UserId:         playerId,
 		RoomId:         roomId,
-		FireCardId:     redCardId,
-		WaterCardId:    blueCardId,
-		GrassCardId:    greenCardId,
-		KameKameCardId: kameKameCardId,
-		NankuruCardId:  nankuruCardId,
-		RandomCardId:   randomCardId,
+		RedCardId:      sql.NullInt64{Int64: redCardId, Valid: true},
+		BlueCardId:     sql.NullInt64{Int64: blueCardId, Valid: true},
+		GreenCardId:    sql.NullInt64{Int64: greenCardId, Valid: true},
+		KameKameCardId: sql.NullInt64{Int64: kameKameCardId, Valid: true},
+		NankuruCardId:  sql.NullInt64{Int64: nankuruCardId, Valid: true},
+		RandomCardId:   sql.NullInt64{Int64: randomCardId, Valid: true},
 		Result:         "pending",
 	}
 

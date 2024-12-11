@@ -12,8 +12,8 @@ type (
 		GreenCardId    sql.NullInt64
 		KameKameCardId sql.NullInt64
 		NankuruCardId  sql.NullInt64
-		RandomId       sql.NullInt64
-		Hp             int64
+		RandomCardId       sql.NullInt64
+		Hp             int
 		Result         string
 	}
 
