@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS battles (
     kamekame_card_id BIGINT,
     nankuru_card_id BIGINT,
     random_card_id BIGINT,
+    random_attribute ENUM('red', 'blue', 'green') NOT NULL,
     hp INT NOT NULL,
     result ENUM('win', 'lose', 'draw', 'pending') NOT NULL,
     PRIMARY KEY (battle_id),
@@ -135,11 +136,12 @@ INSERT INTO
         kamekame_card_id,
         nankuru_card_id,
         random_card_id,
+        random_attribute,
         hp,
         result
     )
 VALUES
-    (1, 1, 2, 3, 4, 5, 6, 7, 3, 'win'),
-    (1, 2, 13, 14, 15, 16, 17, 18, 0, 'lose'),
-    (2, 1, 4, 5, 6, 7, 8, 9, 1, 'draw'),
-    (2, 2, 14, 15, 16, 17, 18, 19, 1, 'draw');
+    (1, 1, 2, 3, 4, 5, 6, 7, 'red', 3, 'win'),
+    (1, 2, 13, 14, 15, 16, 17, 18, 'green', 0, 'lose'),
+    (2, 1, 4, 5, 6, 7, 8, 9, 'blue', 1, 'draw'),
+    (2, 2, 14, 15, 16, 17, 18, 19, 'red', 1, 'draw');

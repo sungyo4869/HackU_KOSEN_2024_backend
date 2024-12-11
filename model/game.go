@@ -7,6 +7,7 @@ type (
 		RoomId    int64  `json:"room-id"`
 		UserId    int64  `json:"user-id"`
 		Attribute string `json:"attribute"`
+		CardId int64 `json:"card-id"`
 	}
 
 	GameResponse struct {
