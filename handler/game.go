@@ -92,22 +92,16 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameRes
 	if *player1.Attribute == *player2.Attribute {
 		player1.TurnResult = "draw"
 		player2.TurnResult = "draw"
-		log.Println("drawだよ", *player1.UserId, ":", *player1.Attribute," ",  *player2.UserId, ":", *player2.Attribute)
 	} else if winningRelations[*player1.Attribute] == *player2.Attribute || (*player1.Attribute == "kamekame" && *player2.Attribute != "nankuru") {
 		player1.TurnResult = "win"
 		player2.TurnResult = "lose"
-		log.Println(*player1.UserId, "のかちだよ", *player1.UserId, ":", *player1.Attribute," ",  *player2.UserId, ":", *player2.Attribute)
 	} else if winningRelations[*player2.Attribute] == *player1.Attribute || (*player2.Attribute == "kamekame" && *player1.Attribute != "nankuru") {
 		player1.TurnResult = "lose"
 		player2.TurnResult = "win"
-		log.Println(*player2.UserId, "のかちだよ", *player1.UserId, ":", *player1.Attribute," ",  *player2.UserId, ":", *player2.Attribute)
-
 	} else {
 		player1.TurnResult = "draw"
 		player2.TurnResult = "draw"
-		log.Println("drawだよ", *player1.UserId, ":", *player1.Attribute," ",  *player2.UserId, ":", *player2.Attribute)
 	}
-	
 
 	battle1, err := h.BtlSvc.ReadBattle(*player1.UserId, *player1.RoomId)
 	if err != nil {
@@ -213,7 +207,7 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameRes
 	return &res
 }
 
-func (h *GameHandler) StartListening() {
+func (h *GameHandler) SendTurnResult() {
 	for {
 		var player1 player
 		var player2 player
