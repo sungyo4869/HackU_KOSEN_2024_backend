@@ -7,9 +7,7 @@ import (
 )
 
 func NewDB() (*sql.DB, error) {
-	// dsn := "root:-j+Qgve(!#9k@tcp(153.121.44.20)/hacku_kosen_2024?parseTime=true"
-	dsn := "root:2PL|RQ)hpevE@tcp(127.0.0.1:3306)/hacku_kosen_2024?parseTime=true"
-	
+	dsn := "root:pass@tcp(127.0.0.1:3306)/testdb?parseTime=true"
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
