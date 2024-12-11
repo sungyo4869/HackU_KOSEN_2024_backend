@@ -1,29 +1,31 @@
 package model
 
+import "database/sql"
+
 type (
 	Battle struct {
-		Battle_id      int
-		UserId         int
-		RoomId         int
-		FireCardId     int
-		WaterCardId    int
-		GrassCardId    int
-		KameKameCardId int
-		NankuruCardId  int
-		RandomId       int
-		Hp             int
+		Battle_id      int64
+		UserId         int64
+		RoomId         int64
+		RedCardId      sql.NullInt64
+		BlueCardId     sql.NullInt64
+		GreenCardId    sql.NullInt64
+		KameKameCardId sql.NullInt64
+		NankuruCardId  sql.NullInt64
+		RandomId       sql.NullInt64
+		Hp             int64
 		Result         string
 	}
 
 	InitializeBattleRequest struct {
-		UserId         int
-		RoomId         int
-		FireCardId     int
-		WaterCardId    int
-		GrassCardId    int
-		KameKameCardId int
-		NankuruCardId  int
-		RandomCardId   int
+		UserId         int64
+		RoomId         int64
+		RedCardId      sql.NullInt64
+		BlueCardId     sql.NullInt64
+		GreenCardId    sql.NullInt64
+		KameKameCardId sql.NullInt64
+		NankuruCardId  sql.NullInt64
+		RandomCardId   sql.NullInt64
 		Result         string
 	}
 )

@@ -1,7 +1,7 @@
 package model
 
 type MatchingWSResponse struct {
-	RoomId  int      `json:"room-id"`
+	RoomId  int64      `json:"room-id"`
 	Players []Player `json:"players"`
 }
 

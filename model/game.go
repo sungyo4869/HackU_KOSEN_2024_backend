@@ -1,14 +1,28 @@
 package model
 
+import "database/sql"
+
 type (
 	GameRequest struct {
-		RoomId  int    `json:"room-id"`
-		UserId  int    `json:"user-id"`
-		PutCard string `json:"put-card"`
+		RoomId    int64  `json:"room-id"`
+		UserId    int64  `json:"user-id"`
+		Attribute string `json:"attribute"`
 	}
-	
-	// 以下まだ考えてない
+
 	GameResponse struct {
-		Message string
+		Results []GameResult
+	}
+
+	GameResult struct {
+		UserId          int64         `json:"user-id"`
+		Hp              int           `json:"hp"`
+		SelectAttribute string        `json:"select-attribute"`
+		Result          string        `json:"result"`
+		RedCardId       sql.NullInt64 `json:"red-card-id"`
+		BlueCardId      sql.NullInt64 `json:"blue-card-id"`
+		GreenCardId     sql.NullInt64 `json:"green-card-id"`
+		KameKameCardId  sql.NullInt64 `json:"kamekame-card-id"`
+		NankuruCardId   sql.NullInt64 `json:"nankuru-card-id"`
+		RandomCardId    sql.NullInt64 `json:"random-card-id"`
 	}
 )
