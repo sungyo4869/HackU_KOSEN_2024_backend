@@ -16,10 +16,15 @@ func NewRouter(DB *sql.DB) *http.ServeMux {
 	mux.HandleFunc("/login", handler.NewLoginHandler(service.NewUserService(DB)).ServeHTTP)
 	mux.HandleFunc("/cards", middleware.Auth(handler.NewCardHandler(*service.NewCardService(DB))).ServeHTTP)
 	mux.HandleFunc("/select", middleware.Auth(handler.NewUserSelectHandler(*service.NewUserSelectService(DB))).ServeHTTP)
+	
+	h1 := handler.NewMatchingHandler(*service.NewSelectedCardService(DB), *service.NewRoomService(DB), *service.NewUserService(DB), *service.NewBattleService(DB))
+	mux.HandleFunc("/ws/matching", h1.ServeHTTP)
+	go h1.StartListening()
 
-	h := handler.NewMatchingHandler(service.NewSelectedCardService(DB), service.NewRoomService(DB), *service.NewUserService(DB))
-	mux.HandleFunc("/ws/matching", h.ServeHTTP)
-	go h.StartListening()
+	h2 := handler.NewGameHandler(*service.NewSelectedCardService(DB), *service.NewRoomService(DB), *service.NewUserService(DB), *service.NewBattleService(DB))
+	mux.HandleFunc("/ws/game", h2.ServeHTTP)
+	go h2.StartListening()
 
 	return mux
 }
+

@@ -1,11 +1,11 @@
-package model 
+package model
 
-type(
+type (
 	Card struct {
-		Id int 
-		UserId int
+		Id      int64
+		UserId  int64
 		Picture string
-		Name string	
+		Name    string
 	}
 
 	ReadCardsResponse struct {
