@@ -17,7 +17,7 @@ type (
 		UserId          int64         `json:"user-id"`
 		Hp              int           `json:"hp"`
 		SelectAttribute string        `json:"select-attribute"`
-		Result          string        `json:"result"`
+		TurnResult      string        `json:"turn-result"`
 		RedCardId       sql.NullInt64 `json:"red-card-id"`
 		BlueCardId      sql.NullInt64 `json:"blue-card-id"`
 		GreenCardId     sql.NullInt64 `json:"green-card-id"`

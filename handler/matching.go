@@ -40,7 +40,6 @@ var upgrader = websocket.Upgrader{
 }
 
 func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Println("アクセスきてるね")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Failed to upgrade to WebSocket:", err)
@@ -57,12 +56,8 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("うけとったよ")
-
 	h.Player <- &msg.UserId
 	h.ReadyCh <- conn
-
-	log.Println("チャネルに送ったよ")
 
 	for {
 		_, _, err := conn.ReadMessage()
@@ -113,13 +108,9 @@ func (h *MatchingHandler) StartListening() {
 	for {
 		conn1 := <-h.ReadyCh
 		conn2 := <-h.ReadyCh
-		log.Println("connきた")
 
 		player1 := <-h.Player
 		player2 := <-h.Player
-		log.Println("idきた")
-
-		log.Println("2人そろったよ")
 
 		res, err := h.createRes([]int64{*player1, *player2})
 		if err != nil {
