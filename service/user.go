@@ -41,7 +41,7 @@ func (s *UserService) ReadUser(ctx context.Context, username string, password st
 	return &res, nil
 }
 
-func (s *UserService) ReadUserWithId(userId int) (*model.ReadUserWithIdResponse, error){
+func (s *UserService) ReadUserWithId(userId int64) (*model.ReadUserWithIdResponse, error){
 	const query = `select username from users where id = ?`
 	var user model.ReadUserWithIdResponse
 
@@ -53,7 +53,7 @@ func (s *UserService) ReadUserWithId(userId int) (*model.ReadUserWithIdResponse,
 	return &user, nil
 }
 
-func (s *UserService) CreateToken(userId int) (string, error) {
+func (s *UserService) CreateToken(userId int64) (string, error) {
 	token := jwt.New(jwt.GetSigningMethod("HS256"))
 	token.Claims = jwt.MapClaims{
 		"user_id": userId,

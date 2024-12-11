@@ -19,8 +19,8 @@ type (
 	}
 
 	UpdateUserSelectCards struct {
-		SelectCardId int `json:"selectedCardId"`
-		CardId       int `json:"cardId"`
+		Attribute string `json:"attribute"`
+		CardId    int    `json:"cardId"`
 	}
 
 	UpdateUserSelectCardsRequest struct {

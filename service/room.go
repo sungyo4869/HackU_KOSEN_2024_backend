@@ -17,7 +17,7 @@ func NewRoomService(db *sql.DB) *RoomService {
 	}
 }
 
-func (s *RoomService) CreateRoom(userid []int) (*model.Room, error) {
+func (s *RoomService) CreateRoom(userid []int64) (*model.Room, error) {
 	const (
 		insert  = `INSERT INTO rooms(user1_id, user2_id) VALUES(?, ?)`
 		confirm = `SELECT * FROM rooms WHERE room_id = ?`

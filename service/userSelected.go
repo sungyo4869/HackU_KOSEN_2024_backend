@@ -18,6 +18,23 @@ func NewUserSelectService(db *sql.DB) *UserSelectService {
 	}
 }
 
+func (s *UserSelectService) ReadAttribute(cardId int64) (string, error) {
+    query := `SELECT attribute from user_selected where card_id = ?`
+    row := s.db.QueryRow(query, cardId)
+
+    var attribute string
+    err := row.Scan(&attribute)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return "", fmt.Errorf("no attribute found for card_id %d", cardId)
+        }
+        return "", fmt.Errorf("failed to query attribute: %v", err)
+    }
+
+    return attribute, nil
+}
+
+
 func (s *UserSelectService) ReadUserSelect(ctx context.Context, userId int) (*[]model.UserSelectCardResponse, error) {
 	query := `SELECT id, card_id, attribute from user_selected where user_id = ?`
 
@@ -42,7 +59,7 @@ func (s *UserSelectService) ReadUserSelect(ctx context.Context, userId int) (*[]
 
 func (s *UserSelectService) UpdateUserSelect(ctx context.Context, userId int, userSelectCards []model.UpdateUserSelectCards) (*[]model.UserSelectCardResponse, error) {
 	checkOwnership := `SELECT COUNT(*) FROM cards WHERE id = ? AND user_id = ?`
-	update := `UPDATE user_selected SET card_id = ? WHERE id = ? AND user_id = ?`
+	update := `UPDATE user_selected SET card_id = ? WHERE attribute = ? AND user_id = ?`
 	confirm := `SELECT id, card_id, attribute FROM user_selected WHERE user_id = ?`
 
 	var resCards []model.UserSelectCardResponse
@@ -63,7 +80,7 @@ func (s *UserSelectService) UpdateUserSelect(ctx context.Context, userId int, us
 			tx.Rollback()
 			return nil, fmt.Errorf("card_id %d does not belong to user_id %d", userSelectCard.CardId, userId)
 		}
-		_, err = tx.ExecContext(ctx, update, userSelectCard.CardId, userSelectCard.SelectCardId, userId)
+		_, err = tx.ExecContext(ctx, update, userSelectCard.CardId, userSelectCard.Attribute, userId)
 		if err != nil {
 			tx.Rollback()
 			return nil, err

@@ -16,7 +16,7 @@ func NewSelectedCardService(db *sql.DB) *SelectedCardService {
 	}
 }
 
-func (s *SelectedCardService) ReadSelectedCard(userId int) ([]model.SelectedCard, error){
+func (s *SelectedCardService) ReadSelectedCard(userId int64) ([]model.SelectedCard, error){
 	query := `SELECT us.attribute, c.card_name, c.id AS card_id, c.picture FROM user_selected us JOIN cards c ON us.card_id = c.id WHERE us.user_id = ?;`
 
 	rows, err := s.db.Query(query, userId)
