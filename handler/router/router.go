@@ -12,21 +12,21 @@ import (
 func NewRouter(DB *sql.DB) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/healthz", handler.NewHealthzHandler().ServeHTTP)
-	mux.HandleFunc("/login", handler.NewLoginHandler(service.NewUserService(DB)).ServeHTTP)
-	mux.HandleFunc("/cards", middleware.Auth(handler.NewCardHandler(*service.NewCardService(DB))).ServeHTTP)
-	mux.HandleFunc("/select", middleware.Auth(handler.NewSelectHandler(*service.NewUserSelectService(DB))).ServeHTTP)
+	mux.HandleFunc("/healthz", middleware.Recovery(handler.NewHealthzHandler()).ServeHTTP)
+	mux.HandleFunc("/login", middleware.Recovery(handler.NewLoginHandler(service.NewUserService(DB))).ServeHTTP)
+	mux.HandleFunc("/cards", middleware.Recovery(middleware.Auth(handler.NewCardHandler(*service.NewCardService(DB)))).ServeHTTP)
+	mux.HandleFunc("/select", middleware.Recovery(middleware.Auth(handler.NewSelectHandler(*service.NewUserSelectService(DB)))).ServeHTTP)
 	
 	matchingHandler := handler.NewMatchingHandler(*service.NewSelectedCardService(DB), *service.NewRoomService(DB), *service.NewUserService(DB), *service.NewBattleService(DB))
-	mux.HandleFunc("/ws/matching", matchingHandler.ServeHTTP)
+	mux.HandleFunc("/ws/matching", middleware.Recovery(matchingHandler).ServeHTTP)
 	go matchingHandler.StartMatching()
 
 	gameHandler := handler.NewGameHandler(*service.NewSelectedCardService(DB), *service.NewRoomService(DB), *service.NewUserService(DB), *service.NewBattleService(DB), *service.NewUserSelectService(DB))
-	mux.HandleFunc("/ws/game", gameHandler.ServeHTTP)
+	mux.HandleFunc("/ws/game", middleware.Recovery(gameHandler).ServeHTTP)
 	go gameHandler.SendTurnResult()
 
 	shogunHandler := handler.NewShogunHandler(*service.NewBattleService(DB))
-	mux.HandleFunc("/ws/shogun", shogunHandler.ServeHTTP)
+	mux.HandleFunc("/ws/shogun", middleware.Recovery(shogunHandler).ServeHTTP)
 	go shogunHandler.SendShogun()
 
 	return mux

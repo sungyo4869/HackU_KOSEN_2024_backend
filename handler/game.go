@@ -235,7 +235,7 @@ func (h *GameHandler) SendTurnResult() {
 
 		res, err := h.CreateRes(&player1, &player2)
 		if err != nil {
-			log.Println("failed to create ws game response:", err)
+			log.Println("failed to create game response:", err)
 		}
 
 		log.Println(res.Results[0].TurnResult)

@@ -41,6 +41,10 @@ func (h ShogunWSHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.req <- &req
+
+	log.Println("りくえすときたよ")
+	log.Println(req.RoomId, req.UserId, req.ShogunId)
+	
 	h.conn <- conn
 
 	for {
