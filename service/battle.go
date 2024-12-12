@@ -17,9 +17,9 @@ func NewBattleService(db *sql.DB) *BattleService {
 	}
 }
 
-func (s *BattleService) UpdateShogun(userId int64, roomId int64, shogunId int64) (error) {
+func (s *BattleService) UpdateShogun(userId int64, roomId int64, shogunId int64) error {
 	const (
-		insert = `("UPDATE battles SET shogun-id = ? WHERE user_id = ? AND room_id = ?;`
+		insert = `UPDATE battles SET shogun_id = ? WHERE user_id = ? AND room_id = ?;`
 	)
 
 	_, err := s.db.Exec(insert, shogunId, userId, roomId)
@@ -36,7 +36,7 @@ func (s *BattleService) InitializeBattle(data *model.InitializeBattleRequest) (*
 			user_id, room_id, red_card_id, blue_card_id, green_card_id, 
 			kamekame_card_id, nankuru_card_id, random_card_id, random_attribute, hp, result
 		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
-		confirm = `SELECT * FROM battles WHERE battle_id = ?`
+		confirm = `SELECT battle_id, user_id, room_id, red_card_id, blue_card_id, green_card_id, kamekame_card_id, nankuru_card_id, random_card_id, random_attribute, hp, result FROM battles WHERE battle_id = ?`
 	)
 
 	result, err := s.db.Exec(insert, data.UserId, data.RoomId, data.RedCardId, data.BlueCardId, data.GreenCardId, data.KameKameCardId, data.NankuruCardId, data.RandomCardId, data.RandomAttribute, 3, "pending")
@@ -63,7 +63,7 @@ func (s *BattleService) InitializeBattle(data *model.InitializeBattleRequest) (*
 
 func (s *BattleService) UpdateBattle(userId int64, roomId int64, column string, hp int) (*model.Battle, error) {
 	query := fmt.Sprintf("UPDATE battles SET %s = NULL, hp = ? WHERE user_id = ? AND room_id = ?;", column+"_card_id")
-	const confirm = `SELECT * FROM battles WHERE user_id = ? AND room_id = ?`
+	const confirm = `SELECT battle_id, user_id, room_id, red_card_id, blue_card_id, green_card_id, kamekame_card_id, nankuru_card_id, random_card_id, random_attribute, hp, result FROM battles WHERE user_id = ? and room_id = ?`
 
 	// UPDATE クエリの実行
 	result, err := s.db.Exec(query, hp, userId, roomId)
@@ -95,7 +95,7 @@ func (s *BattleService) UpdateBattle(userId int64, roomId int64, column string, 
 func (s *BattleService) UpdateResult(userId int64, roomId int64, result string) (*model.Battle, error) {
 	const (
 		query   = `UPDATE battles SET result = ? WHERE user_id = ? AND room_id = ?`
-		confirm = `SELECT * FROM battles WHERE user_id = ? AND room_id = ?`
+		confirm = `SELECT battle_id, user_id, room_id, red_card_id, blue_card_id, green_card_id, kamekame_card_id, nankuru_card_id, random_card_id, random_attribute, hp, result FROM battles WHERE user_id = ? and room_id = ?`
 	)
 
 	execResult, err := s.db.Exec(query, result, userId, roomId)
@@ -124,7 +124,7 @@ func (s *BattleService) UpdateResult(userId int64, roomId int64, result string) 
 }
 
 func (s *BattleService) ReadBattle(userId int64, roomId int64) (*model.Battle, error) {
-	const read = `select * from battles where user_id = ? and room_id = ?`
+	const read = `SELECT battle_id, user_id, room_id, red_card_id, blue_card_id, green_card_id, kamekame_card_id, nankuru_card_id, random_card_id, random_attribute, hp, result FROM battles WHERE user_id = ? and room_id = ?`
 
 	var battle model.Battle
 
@@ -134,5 +134,4 @@ func (s *BattleService) ReadBattle(userId int64, roomId int64) (*model.Battle, e
 	}
 
 	return &battle, nil
-
 }

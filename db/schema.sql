@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS battles (
     nankuru_card_id BIGINT,
     random_card_id BIGINT,
     random_attribute ENUM('red', 'blue', 'green') NOT NULL,
-    shogun_name BIGINT NOT NULL DEFAULT 1,
+    shogun_id BIGINT NOT NULL DEFAULT 1,
     hp INT NOT NULL,
     result ENUM('win', 'lose', 'draw', 'pending') NOT NULL DEFAULT 'pending',
     PRIMARY KEY (battle_id),

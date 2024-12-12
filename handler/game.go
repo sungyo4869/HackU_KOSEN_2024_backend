@@ -47,6 +47,7 @@ func NewGameHandler(SCSvc service.SelectedCardService, RmSvc service.RoomService
 }
 
 func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Println("リクエストが来ました")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Failed to upgrade to WebSocket:", err)
@@ -73,10 +74,13 @@ func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.RoomId <- &req.RoomId
 		h.Attribute <- &req.Attribute
 		h.CardId <- &req.CardId
+		h.ReadyCh <- conn
+
+		log.Println("h.のちゃねるたちにおくれました")
 	}
 }
 
-func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameWSResponse {
+func (h *GameHandler) CreateRes(player1 *player, player2 *player) (*model.GameWSResponse, error) {
 
 	var res model.GameWSResponse
 
@@ -104,8 +108,7 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameWSR
 
 	battle1, err := h.BtlSvc.ReadBattle(*player1.UserId, *player1.RoomId)
 	if err != nil {
-		log.Println("failed to read battle table:", err)
-		return nil
+		return nil, err
 	}
 	player1.Hp = battle1.Hp
 	if player1.TurnResult == "lose" {
@@ -114,8 +117,7 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameWSR
 
 	battle2, err := h.BtlSvc.ReadBattle(*player2.UserId, *player2.RoomId)
 	if err != nil {
-		log.Println("failed to read battle table:", err)
-		return nil
+		return nil, err
 	}
 	player2.Hp = battle2.Hp
 	if player2.TurnResult == "lose" {
@@ -124,52 +126,44 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameWSR
 
 	attribute1, err := h.USSvc.ReadAttribute(*player1.CardId)
 	if err != nil {
-		log.Println("failed to read card attribute:", err)
-		return nil
+		return nil, err
 	}
 
 	player1.Attribute = &attribute1
 
 	attribute2, err := h.USSvc.ReadAttribute(*player2.CardId)
 	if err != nil {
-		log.Println("failed to read card attribute:", err)
-		return nil
+		return nil, err
 	}
 
 	player2.Attribute = &attribute2
 
 	battle1, err = h.BtlSvc.UpdateBattle(*player1.UserId, *player1.RoomId, *player1.Attribute, player1.Hp)
 	if err != nil {
-		log.Println("failed to update battle table", err)
-		return nil
+		return nil, err
 	}
 	battle2, err = h.BtlSvc.UpdateBattle(*player2.UserId, *player2.RoomId, *player2.Attribute, player2.Hp)
 	if err != nil {
-		log.Println("failed to update battle table", err)
-		return nil
+		return nil, err
 	}
 
 	if player1.Hp == 0 || ((!battle1.RedCardId.Valid && !battle1.BlueCardId.Valid && !battle1.GreenCardId.Valid && !battle1.KameKameCardId.Valid && !battle1.NankuruCardId.Valid && !battle1.RandomCardId.Valid) && battle1.Hp < battle2.Hp) {
 		battle1, err = h.BtlSvc.UpdateResult(*player1.UserId, *player1.RoomId, "lose")
 		if err != nil {
-			log.Println("failed to update battle result", err)
-			return nil
+			return nil, err
 		}
 		battle2, err = h.BtlSvc.UpdateResult(*player2.UserId, *player2.RoomId, "win")
 		if err != nil {
-			log.Println("failed to update battle result", err)
-			return nil
+			return nil, err
 		}
 	} else if player2.Hp == 0 || ((!battle1.RedCardId.Valid && !battle1.BlueCardId.Valid && !battle1.GreenCardId.Valid && !battle1.KameKameCardId.Valid && !battle1.NankuruCardId.Valid && !battle1.RandomCardId.Valid) && battle1.Hp > battle2.Hp) {
 		battle1, err = h.BtlSvc.UpdateResult(*player1.UserId, *player1.RoomId, "win")
 		if err != nil {
-			log.Println("failed to update battle result:", err)
-			return nil
+			return nil, err
 		}
 		battle2, err = h.BtlSvc.UpdateResult(*player2.UserId, *player2.RoomId, "lose")
 		if err != nil {
-			log.Println("failed to update battle result:", err)
-			return nil
+			return nil, err
 		}
 	}
 
@@ -203,32 +197,50 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameWSR
 	}
 	res.Results = append(res.Results, *result)
 
-	return &res
+	return &res, nil
 }
 
 func (h *GameHandler) SendTurnResult() {
+	log.Println("はじまりますわよー")
 	for {
 		var player1 player
 		var player2 player
 
+		log.Println("forのはじまりどすえ")
+
 		player1.conn = <-h.ReadyCh
 		player2.conn = <-h.ReadyCh
+
+		log.Println("connにひききました")
 
 		player1.UserId = <-h.UserId
 		player2.UserId = <-h.UserId
 
+		log.Println("user-idにひききました")
+
 		player1.Attribute = <-h.Attribute
 		player2.Attribute = <-h.Attribute
+
+		log.Println("attributeにひききました")
 
 		player1.RoomId = <-h.RoomId
 		player2.RoomId = <-h.RoomId
 
+		log.Println("room-isにひききました")
+
 		player1.CardId = <-h.CardId
 		player2.CardId = <-h.CardId
 
-		res := h.CreateRes(&player1, &player2)
+		log.Println("ふたりそろったよ")
 
-		err := player1.conn.WriteJSON(res)
+		res, err := h.CreateRes(&player1, &player2)
+		if err != nil {
+			log.Println("failed to create ws game response:", err)
+		}
+
+		log.Println(res.Results[0].TurnResult)
+
+		err = player1.conn.WriteJSON(res)
 		if err != nil {
 			log.Println("Failed to send message:", err)
 		}

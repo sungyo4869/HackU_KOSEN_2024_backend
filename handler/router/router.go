@@ -25,6 +25,10 @@ func NewRouter(DB *sql.DB) *http.ServeMux {
 	mux.HandleFunc("/ws/game", gameHandler.ServeHTTP)
 	go gameHandler.SendTurnResult()
 
+	shogunHandler := handler.NewShogunHandler(*service.NewBattleService(DB))
+	mux.HandleFunc("/ws/shogun", shogunHandler.ServeHTTP)
+	go shogunHandler.SendShogun()
+
 	return mux
 }
 
