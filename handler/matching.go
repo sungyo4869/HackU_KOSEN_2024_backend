@@ -51,14 +51,14 @@ func (h *MatchingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer conn.Close()
 
-	msg := model.ReadUserResponse{}
-	err = conn.ReadJSON(&msg)
+	req := model.MatchingUserRequest{}
+	err = conn.ReadJSON(&req)
 	if err != nil {
 		log.Println("Failed to receive json:", err)
 		return
 	}
 
-	h.Player <- &msg.UserId
+	h.Player <- &req.UserId
 	h.ReadyCh <- conn
 
 	for {

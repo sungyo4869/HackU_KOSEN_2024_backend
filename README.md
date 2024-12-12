@@ -36,19 +36,13 @@
 - **レスポンス:**
   ```json
   {
-    "user-id": 2
+    "token": "jwt-token"
   }
     ```
 
 ### /cards
 - **メソッド:** `GET`
-- **役割:** パラメータで与えられたuser-idから照会し、ユーザーが所持しているカード一覧を返す
-- **パラメータ:**
-
-     | **name**              | **Description**   |
-     |:---------------------:|:-------------------:|
-     | user-id               | ユーザー固有のID       |
-
+- **役割:** ユーザーが所持しているカード一覧を返す
 - **レスポンス:**
   ```json
   {
@@ -58,24 +52,47 @@
     ]
   }
     ```
-### /selected-cards
-- **メソッド:** `GET`
-- **役割:** パラメータで与えられたuser-idから照会し、ユーザーが所持しているバトルに使うときのカード一覧を返す
-- **パラメータ:**
-
-     | **name**              | **Description**   |
-     |:---------------------:|:-------------------:|
-     | user-id               | ユーザー固有のID       |
-
-- **レスポンス:**
+- **メソッド :** `POST`
+- **役割 :** カードをDBに新規登録する
+- **リクエスト**
   ```json
   {
-    "selected-cards": [
-        {"Id":2,"UserId":2,"Atttribute":"red"},
-        {"Id":3,"UserId":5,"Atttribute":"water"},
-    ]
+    "user-id":2,
+    "picture":"/card1.png",
+    "name":"おとうさん"
   }
-    ```
+  ```
+- **レスポンス**
+
+  ```json
+  {
+    "card-id": 1,
+    "user-id":2,
+    "picture":"/card1.png",
+    "name":"おとうさん"
+  }
+  ```
+### /select
+- **メソッド:** `GET`
+- **役割:** ユーザーのuser_selectedテーブルの中身を返す
+- **レスポンス :**
+  ```json
+  {
+      "cards": [
+          {
+            "user-selected-id":2,
+            "card-id": 6,
+            "attribute": "red",
+          },
+          {
+          "user-selected-id":3,
+            "card-id": 4,
+            "attribute": "blue",
+          },
+          // ほかのカードも返す
+      ]
+  }
+  ```
 ## /ws/matching
 - **役割**: マッチングのためのWebSocket通信を確立し、マッチング完了時に情報を返す。
 - **投げてもらうJSONの形:**

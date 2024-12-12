@@ -17,6 +17,19 @@ func NewBattleService(db *sql.DB) *BattleService {
 	}
 }
 
+func (s *BattleService) UpdateShogun(userId int64, roomId int64, shogunId int64) (error) {
+	const (
+		insert = `("UPDATE battles SET shogun-id = ? WHERE user_id = ? AND room_id = ?;`
+	)
+
+	_, err := s.db.Exec(insert, shogunId, userId, roomId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *BattleService) InitializeBattle(data *model.InitializeBattleRequest) (*model.Battle, error) {
 	const (
 		insert = `INSERT INTO battles (

@@ -56,9 +56,9 @@ func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	for {
-		var msg model.GameRequest
+		var req model.GameWSRequest
 
-		err = conn.ReadJSON(&msg)
+		err = conn.ReadJSON(&req)
 		if err != nil {
 			if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
 				log.Println("WebSocket connection closed by client")
@@ -69,17 +69,16 @@ func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		h.UserId <- &msg.UserId
-		h.RoomId <- &msg.RoomId
-		h.Attribute <- &msg.Attribute
-		h.CardId <- &msg.CardId
-		h.ReadyCh <- conn
+		h.UserId <- &req.UserId
+		h.RoomId <- &req.RoomId
+		h.Attribute <- &req.Attribute
+		h.CardId <- &req.CardId
 	}
 }
 
-func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameResponse {
+func (h *GameHandler) CreateRes(player1 *player, player2 *player) *model.GameWSResponse {
 
-	var res model.GameResponse
+	var res model.GameWSResponse
 
 	winningRelations := map[string]string{
 		"red":      "green", // 日の出 > 門松
