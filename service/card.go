@@ -40,7 +40,7 @@ func(s *CardService) ReadCard(ctx context.Context, userId int, cardId []int) (*[
     var cards []model.Card
     for rows.Next() {
         var card model.Card
-        if err := rows.Scan(&card.Id, &card.UserId, &card.Name, &card.Picture); err != nil {
+        if err := rows.Scan(&card.Id, &card.UserId, &card.Picture, &card.Name); err != nil {
             return nil, err
         }
         cards = append(cards, card)
