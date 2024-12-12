@@ -32,10 +32,11 @@
      | **name**              | **Description**   |
      |:---------------------:|:-------------------:|
      | username              | ユーザーの名前       |
-
+     | password              | ユーザーのパスワード  |
 - **レスポンス:**
   ```json
   {
+    "user-id": 1,
     "token": "jwt-token"
   }
     ```
@@ -47,8 +48,9 @@
   ```json
   {
     "cards": [
-        {"Id":2,"UserId":2,"Picture":"カード2","Name":"card2.jpg"},
-        {"Id":5,"UserId":2,"Picture":"カード5","Name":"card5.jpg"}
+      {"card-id":1,"user-id":1,"picture":"pochi1.jpg","name":"カード1"},
+      {"card-id":2,"user-id":1,"picture":"pochi2.jpg","name":"カード2"},
+      // ほかのカードも返す
     ]
   }
     ```
@@ -93,6 +95,44 @@
       ]
   }
   ```
+- **メソッド:** `PUT`
+- **役割:** 手札を変更し、格納する
+- **リクエスト**
+  ```json
+  {
+    "selected-cards":[
+	  {
+		  "attribute":"red",
+	    "card-id":1,
+	  },
+	  {
+		  "attribute":"blue",
+	    "card-id":2,
+	  },
+	  // ほかのカードも
+	]
+  }
+  ```
+- **レスポンス :**
+  ```json
+  {
+    "selected-cards":[
+      {
+        "selected-card-id":2,
+        "card-id":1,
+        "attribute":"red"
+      },
+      {
+        "selected-card-id":2,
+        "card-id":1,
+        "attribute":"blue"
+      },
+      
+      // ほかのカードも
+	  ]
+  }
+  ```
+
 ## /ws/matching
 - **役割**: マッチングのためのWebSocket通信を確立し、マッチング完了時に情報を返す。
 - **投げてもらうJSONの形:**
@@ -224,3 +264,30 @@
   }
   
   ```
+### /ws/shogun
+- **役割:** ゲーム開始時に将軍ぽちを選択し情報を返す
+- **投げてもらうJSONの形:**
+```json
+{
+  "room-id": 20,
+  "user-id": 1,
+  "shogun-id": 1
+}
+```
+- **サーバから送る形:**
+```json
+{
+  "players": [
+    {
+      "room-id": 33,
+      "user-id": 1,
+      "shogun-id": 2
+    },
+    {
+      "room-id": 33,
+      "user-id": 2,
+      "shogun-id": 3
+    }
+  ]
+}
+```
