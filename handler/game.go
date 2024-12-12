@@ -10,7 +10,6 @@ import (
 )
 
 type GameHandler struct {
-	SCSvc     *service.SelectedCardService
 	RmSvc     *service.RoomService
 	UsrSvc    *service.UserService
 	BtlSvc    *service.BattleService
