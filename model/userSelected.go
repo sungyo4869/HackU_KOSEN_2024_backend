@@ -9,7 +9,7 @@ type (
 	}
 
 	UserSelectCardResponse struct {
-		SelectCardId int    `json:"select-cardId"`
+		SelectCardId int    `json:"select-card-id"`
 		CardId       int    `json:"card-id"`
 		Attribute    string `json:"attribute"`
 	}
