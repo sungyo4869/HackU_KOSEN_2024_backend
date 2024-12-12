@@ -3,15 +3,31 @@ package model
 import "database/sql"
 
 type (
-	GameRequest struct {
+	GameWSRequest struct {
 		RoomId    int64  `json:"room-id"`
 		UserId    int64  `json:"user-id"`
 		Attribute string `json:"attribute"`
-		CardId int64 `json:"card-id"`
+		CardId    int64  `json:"card-id"`
 	}
 
-	GameResponse struct {
-		Results []GameResult
+	ShogunRequest struct {
+		RoomId   int64 `json:"room-id"`
+		UserId   int64 `json:"user-id"`
+		ShogunId int64 `json:"shogun-id"`
+	}
+
+	Shogun struct {
+		RoomId   int64 `json:"room-id"`
+		UserId   int64 `json:"user-id"`
+		ShogunId int64 `json:"shogun-id"`
+	}
+
+	ShogunResponse struct {
+		Players []Shogun `json:"players"`
+	}
+
+	GameWSResponse struct {
+		Results []GameResult `json:"results"`
 	}
 
 	GameResult struct {

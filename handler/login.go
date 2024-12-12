@@ -22,7 +22,6 @@ func NewLoginHandler(svc *service.UserService) *LoginHandler {
 func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		// var res model.ReadUserResponse
 		var res model.LoginResponse
 
 		params := r.URL.Query()
@@ -53,13 +52,5 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Println("Login: Filed to encoding json, err = ", err)
 			return
 		}
-
-		// res.UserId = user.UserId
-		// err = json.NewEncoder(w).Encode(&res)
-		// if err != nil {
-		// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		// 	log.Println("Login: Filed to encoding json, err = ", err)
-		// 	return
-		// }
 	}
 }

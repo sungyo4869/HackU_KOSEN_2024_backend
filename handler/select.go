@@ -10,17 +10,17 @@ import (
 	"github.com/sugyo4869/HackU_KOSEN_2024/service"
 )
 
-type UserSelectHandler struct {
+type SelectHandler struct {
 	svc *service.UserSelectService
 }
 
-func NewUserSelectHandler(svc service.UserSelectService) *UserSelectHandler {
-	return &UserSelectHandler{
+func NewSelectHandler(svc service.UserSelectService) *SelectHandler {
+	return &SelectHandler{
 		svc: &svc,
 	}
 }
 
-func (h *UserSelectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *SelectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		var res model.ReadUserSelectCardsResponse
