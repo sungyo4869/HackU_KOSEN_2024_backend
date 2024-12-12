@@ -2,7 +2,7 @@ package model
 
 type (
 	User struct {
-		UserId   int64    `json:"user-id"`
+		UserId   int64  `json:"user-id"`
 		Name     string `json:"username"`
 		Password string `json:"password"`
 	}
@@ -16,6 +16,7 @@ type (
 	}
 
 	LoginResponse struct {
-		Token string `json:"token"`
+		UserId int64  `json:"user-id"`
+		Token  string `json:"token"`
 	}
 )

@@ -45,6 +45,7 @@ func (h *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		res.Token = token.Token
+		res.UserId = token.UserId
 		err = json.NewEncoder(w).Encode(&res)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)

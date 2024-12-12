@@ -37,11 +37,12 @@ func (s *UserService) ReadUser(ctx context.Context, username string, password st
 		return nil, err
 	}
 	res.Token = token
+	res.UserId = user.UserId
 
 	return &res, nil
 }
 
-func (s *UserService) ReadUserWithId(userId int64) (*model.ReadUserWithIdResponse, error){
+func (s *UserService) ReadUserWithId(userId int64) (*model.ReadUserWithIdResponse, error) {
 	const query = `select username from users where id = ?`
 	var user model.ReadUserWithIdResponse
 
