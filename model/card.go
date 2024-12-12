@@ -2,10 +2,10 @@ package model
 
 type (
 	Card struct {
-		Id      int64
-		UserId  int64
-		Picture string
-		Name    string
+		Id      int64  `json:"card-id"`
+		UserId  int64  `json:"user-id"`
+		Picture string `json:"picture"`
+		Name    string `json:"name"`
 	}
 
 	ReadCardsResponse struct {
