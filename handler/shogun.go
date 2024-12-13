@@ -19,7 +19,7 @@ func NewShogunHandler(svc service.BattleService) *ShogunWSHandler {
 	return &ShogunWSHandler{
 		svc:  &svc,
 		conn: make(chan *websocket.Conn, 2),
-		req: make(chan *model.ShogunRequest, 2),
+		req:  make(chan *model.ShogunRequest, 2),
 	}
 }
 
@@ -42,9 +42,8 @@ func (h ShogunWSHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	h.req <- &req
 
-	log.Println("りくえすときたよ")
 	log.Println(req.RoomId, req.UserId, req.ShogunId)
-	
+
 	h.conn <- conn
 
 	for {
@@ -98,8 +97,8 @@ func (h *ShogunWSHandler) SendShogun() {
 		conn1 := <-h.conn
 		conn2 := <-h.conn
 
-		req1 := <- h.req
-		req2 := <- h.req
+		req1 := <-h.req
+		req2 := <-h.req
 
 		res, err := h.createResponse([]model.ShogunRequest{*req1, *req2})
 		if err != nil {
