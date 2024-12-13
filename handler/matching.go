@@ -144,16 +144,9 @@ func (h *MatchingHandler) StartMatching() {
 			log.Println("Failed to initialize battle table:", err)
 			return
 		}
-
-		res.Players[0].SelectedCards = append(res.Players[0].SelectedCards, model.SelectedCard{
-			CardId:    battle1.RandomCardId.Int64,
-			Attribute: battle1.RandomAttribute,
-		})
-
-		res.Players[1].SelectedCards = append(res.Players[0].SelectedCards, model.SelectedCard{
-			CardId:    battle2.RandomCardId.Int64,
-			Attribute: battle2.RandomAttribute,
-		})
+		
+		h.replaceRandomAttributes(&res.Players[0], battle1.RandomAttribute)
+		h.replaceRandomAttributes(&res.Players[1], battle2.RandomAttribute)
 
 		err = conn1.WriteJSON(res)
 		if err != nil {
@@ -225,5 +218,13 @@ func (h *MatchingHandler) CreateRandomColor() string {
 		return "blue"
 	default:
 		return "green"
+	}
+}
+
+func(h *MatchingHandler) replaceRandomAttributes(player *model.Player, randomAttribute string) {
+	for i := 0; i < len(player.SelectedCards); i++ {
+		if player.SelectedCards[i].Attribute == "random" {
+			player.SelectedCards[i].Attribute = randomAttribute
+		}
 	}
 }
