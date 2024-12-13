@@ -107,6 +107,7 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) (*model.GameWS
 
 	battle1, err := h.BtlSvc.ReadBattle(*player1.UserId, *player1.RoomId)
 	if err != nil {
+		log.Println("failed to read battle")
 		return nil, err
 	}
 	player1.Hp = battle1.Hp
@@ -116,6 +117,7 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) (*model.GameWS
 
 	battle2, err := h.BtlSvc.ReadBattle(*player2.UserId, *player2.RoomId)
 	if err != nil {
+		log.Println("failed to read battle")
 		return nil, err
 	}
 	player2.Hp = battle2.Hp
@@ -125,6 +127,7 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) (*model.GameWS
 
 	attribute1, err := h.USSvc.ReadAttribute(*player1.CardId)
 	if err != nil {
+		log.Println("failed to read attribute")
 		return nil, err
 	}
 
@@ -132,6 +135,7 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) (*model.GameWS
 
 	attribute2, err := h.USSvc.ReadAttribute(*player2.CardId)
 	if err != nil {
+		log.Println("failed to read attribute")
 		return nil, err
 	}
 
@@ -139,10 +143,12 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) (*model.GameWS
 
 	battle1, err = h.BtlSvc.UpdateBattle(*player1.UserId, *player1.RoomId, *player1.Attribute, player1.Hp)
 	if err != nil {
+		log.Println("failed to update battle")
 		return nil, err
 	}
 	battle2, err = h.BtlSvc.UpdateBattle(*player2.UserId, *player2.RoomId, *player2.Attribute, player2.Hp)
 	if err != nil {
+		log.Println("failed to update battle")
 		return nil, err
 	}
 
@@ -169,21 +175,22 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) (*model.GameWS
 	result := &model.GameResult{
 		UserId:          *player1.UserId,
 		SelectAttribute: *player1.Attribute,
+		SelectCardId:    *player1.CardId,
 		TurnResult:      player1.TurnResult,
-
-		Hp:             battle1.Hp,
-		RedCardId:      battle1.RedCardId,
-		BlueCardId:     battle1.BlueCardId,
-		GreenCardId:    battle1.GreenCardId,
-		KameKameCardId: battle1.KameKameCardId,
-		NankuruCardId:  battle1.NankuruCardId,
-		RandomCardId:   battle1.RandomCardId,
+		Hp:              battle1.Hp,
+		RedCardId:       battle1.RedCardId,
+		BlueCardId:      battle1.BlueCardId,
+		GreenCardId:     battle1.GreenCardId,
+		KameKameCardId:  battle1.KameKameCardId,
+		NankuruCardId:   battle1.NankuruCardId,
+		RandomCardId:    battle1.RandomCardId,
 	}
 	res.Results = append(res.Results, *result)
 
 	result = &model.GameResult{
 		UserId:          *player2.UserId,
 		SelectAttribute: *player1.Attribute,
+		SelectCardId:    *player1.CardId,
 		TurnResult:      player2.TurnResult,
 
 		Hp:             battle2.Hp,
