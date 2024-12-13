@@ -19,7 +19,7 @@ func Auth(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-		log.Println("token = ", tokenString)
+		log.Println("login ok")
 
 		// tokenの認証
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
