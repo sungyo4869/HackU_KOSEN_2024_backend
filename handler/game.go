@@ -46,7 +46,6 @@ func NewGameHandler(SCSvc service.SelectedCardService, RmSvc service.RoomService
 }
 
 func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Println("リクエストが来ました")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Failed to upgrade to WebSocket:", err)
@@ -75,7 +74,6 @@ func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.CardId <- &req.CardId
 		h.ReadyCh <- conn
 
-		log.Println("h.のちゃねるたちにおくれました")
 	}
 }
 
@@ -200,37 +198,24 @@ func (h *GameHandler) CreateRes(player1 *player, player2 *player) (*model.GameWS
 }
 
 func (h *GameHandler) SendTurnResult() {
-	log.Println("はじまりますわよー")
 	for {
 		var player1 player
 		var player2 player
 
-		log.Println("forのはじまりどすえ")
-
 		player1.conn = <-h.ReadyCh
 		player2.conn = <-h.ReadyCh
-
-		log.Println("connにひききました")
 
 		player1.UserId = <-h.UserId
 		player2.UserId = <-h.UserId
 
-		log.Println("user-idにひききました")
-
 		player1.Attribute = <-h.Attribute
 		player2.Attribute = <-h.Attribute
-
-		log.Println("attributeにひききました")
 
 		player1.RoomId = <-h.RoomId
 		player2.RoomId = <-h.RoomId
 
-		log.Println("room-isにひききました")
-
 		player1.CardId = <-h.CardId
 		player2.CardId = <-h.CardId
-
-		log.Println("ふたりそろったよ")
 
 		res, err := h.CreateRes(&player1, &player2)
 		if err != nil {
